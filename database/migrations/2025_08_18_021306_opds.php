@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('opds', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name', 100)->unique();
-            $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('created_at')->useCurrent();
         });
     }
 
