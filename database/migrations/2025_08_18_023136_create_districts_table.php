@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('districts', function (Blueprint $table) {
             $table->string('code', 2)->primary();
             $table->string('name', 255)->nullable(false);
-            $table->timestamps();
+            $table->timestamp('created_at')->useCurrent();
         });
     }
 
