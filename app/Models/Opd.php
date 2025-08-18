@@ -15,4 +15,6 @@ class Opd extends Model
     public function users() {
         return $this->hasMany(User::class, 'opd_id', 'id');
     }
+
+// opd
 }
