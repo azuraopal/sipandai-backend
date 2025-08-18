@@ -11,8 +11,6 @@ class VillageController extends Controller
 {
     public function index(Request $request)
     {
-        $this->authorize('viewAny', Village::class);
-
         $villages = Village::query()
             ->with('district')
             ->when($request->district_code, function ($query, $districtCode) {
@@ -77,27 +75,27 @@ class VillageController extends Controller
         ], 201);
     }
 
-    public function show(Village $village)
+    public function show(Village $id)
     {
-        $this->authorize('view', $village);
+        $this->authorize('view', $id);
 
         return response()->json([
             'success' => true,
             'message' => 'Detail kelurahan berhasil diambil.',
-            'data' => $village->load('district'),
+            'data' => $id->load('district'),
             'errors' => null,
         ]);
     }
 
-    public function update(Request $request, Village $village)
+    public function update(Request $request, Village $id)
     {
-        $this->authorize('update', $village);
+        $this->authorize('update', $id);
 
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|required|string|max:255',
         ]);
 
-        if($validator->fails()) {
+        if ($validator->fails()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Validasi gagal.',
@@ -106,21 +104,21 @@ class VillageController extends Controller
             ], 422);
         }
 
-        $village->update($validator->validated());
+        $id->update($validator->validated());
 
         return response()->json([
             'success' => true,
             'message' => 'Kelurahan berhasil diperbarui.',
-            'data' => $village->load('district'),
+            'data' => $id->fresh('district'),
             'errors' => null,
         ]);
     }
 
-    public function destroy(Village $village)
+    public function destroy(Village $id)
     {
-        $this->authorize('destroy', $village);
+        $this->authorize('destroy', $id);
 
-        $village->delete();
+        $id->delete();
 
         return response()->json([
             'success' => true,
