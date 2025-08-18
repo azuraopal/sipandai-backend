@@ -25,15 +25,18 @@ class District extends Model
     const CREATED_AT = 'created_at';
     const UPDATED_AT = null;
 
-    public function users() {
+    public function users()
+    {
         return $this->hasMany(User::class, 'district_id', 'code');
     }
-    
-    public function villages() {
+
+    public function villages()
+    {
         return $this->hasMany(Village::class, 'district_code', 'code');
     }
-    
-    public function reports() {
+
+    public function reports()
+    {
         return $this->hasMany(Report::class, 'district_id', 'code');
-    } 
+    }
 }
