@@ -26,10 +26,11 @@ return new class extends Migration
             $table->text('description');
             $table->text('address_detail');
             $table->string('phone_number', 15);
-            $table->point('coordinates');
             $table->string('current_status')->default(ReportStatus::PENDING_VERIFICATION->value);
             $table->timestamps();
         });
+
+        DB::statement('ALTER TABLE reports ADD coordinates POINT');
     }
 
     /**
