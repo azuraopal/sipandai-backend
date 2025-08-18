@@ -11,8 +11,8 @@ use App\Http\Controllers\Controller;
 class OpdController extends Controller
 {
     public function index()
-    {
-        $this->authorize('viewAny', Opd::class);
+        {
+            $this->authorize('viewAny', Opd::class);
         try {
             $opds = Opd::paginate(10);
 
@@ -107,7 +107,7 @@ class OpdController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'OPD berhasil diperbarui.',
-                'data' => [$opd],
+                'data' => $opd,
                 'errors' => null
             ], 200);
         } catch (ValidationException $e) {
