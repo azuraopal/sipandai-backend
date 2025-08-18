@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
-use Str;
+use Illuminate\Support\Str;
 
 class GoogleAuthController extends Controller
 {
@@ -21,7 +21,7 @@ class GoogleAuthController extends Controller
     public function callback()
     {
         try {
-            $googleUser = Socialite::driver('google')->user();
+            $googleUser = Socialite::driver('google')->stateless()->user();
 
             $user = User::updateOrCreate([
                 'google_id' => $googleUser->getId(),
@@ -32,11 +32,25 @@ class GoogleAuthController extends Controller
                 'password' => Hash::make(Str::random(24))
             ]);
 
-            Auth::login($user);
+            $token = $user->createToken('auth_token')->plainTextToken;
 
-            return redirect('/dashboard');
+            return response()->json([
+                'success' => true,
+                'message' => 'User authenticated successfully',
+                'data' => [
+                    'user' => $user,
+                    'token' => $token,
+                ],
+                'errors' => null,
+            ], 200);
+
         } catch (Exception $e) {
-            return redirect('/login')->withErrors(['message' => 'Gagal melalukan otentikasi dengan Google.']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Authentication failed',
+                'data' => null,
+                'errors' => $e->getMessage(),
+            ], 401);
         }
     }
 }
