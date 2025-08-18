@@ -37,7 +37,7 @@ class DistrictController extends Controller
     public function store(Request $request)
     {
         $this->authorize('create', District::class);
-        
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|unique:districts|max:255'
         ]);
@@ -53,8 +53,8 @@ class DistrictController extends Controller
 
         $lastDistrict = District::query()->orderBy('code', 'DESC')->first();
 
-        if($lastDistrict) {
-            $nextCodeNumber = (int)$lastDistrict->code + 1;
+        if ($lastDistrict) {
+            $nextCodeNumber = (int) $lastDistrict->code + 1;
         } else {
             $nextCodeNumber = 1;
         }
@@ -77,7 +77,7 @@ class DistrictController extends Controller
     public function show(District $district)
     {
         $this->authorize('view', $district);
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Detail district berhasil diambil',
@@ -114,7 +114,8 @@ class DistrictController extends Controller
         ], 200);
     }
 
-    public function destroy(District $district) {
+    public function destroy(District $district)
+    {
         $this->authorize('delete', $district);
         $district->delete();
 
@@ -124,5 +125,5 @@ class DistrictController extends Controller
             'data' => null,
             'errors' => null,
         ], 200);
-    } 
+    }
 }
