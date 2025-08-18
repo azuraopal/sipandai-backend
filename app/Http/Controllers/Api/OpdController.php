@@ -17,6 +17,7 @@ class OpdController extends Controller
      */
     public function index()
     {
+        $this->authorize('viewAny', Opd::class);
         try {
             $opds = Opd::paginate(10);
 
@@ -53,6 +54,7 @@ class OpdController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', Opd::class);
         try {
             $request->validate([
                 'name' => 'required|string|max:100|unique:opds,name',
@@ -63,7 +65,7 @@ class OpdController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'OPD berhasil dibuat.',
-                'data' => [$opd],
+                'data' => $opd,
                 'errors' => null
             ], 201);
         } catch (ValidationException $e) {
@@ -91,6 +93,7 @@ class OpdController extends Controller
      */
     public function show(Opd $opd)
     {
+        $this->authorize('view', $opd);
         try {
             return response()->json([
                 'success' => true,
@@ -117,6 +120,7 @@ class OpdController extends Controller
      */
     public function update(Request $request, Opd $opd)
     {
+        $this->authorize('update', $opd);
         try {
             $request->validate([
                 'name' => 'required|string|max:100|unique:opds,name,' . $opd->id,
@@ -155,6 +159,7 @@ class OpdController extends Controller
      */
     public function destroy(Opd $opd)
     {
+        $this->authorize('delete', $opd);
         try {
             $opd->delete();
 
