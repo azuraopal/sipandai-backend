@@ -2,39 +2,39 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\District;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Str;
+use Illuminate\Support\Str;
 
 class VillageSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
-    public function run()
+    public function run(): void
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-
         DB::table('villages')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         $villages = [];
-        $districtCodes = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10'];
+        $districtCodes = District::pluck('code')->unique()->toArray();
 
         foreach ($districtCodes as $districtCode) {
             for ($i = 1; $i <= 5; $i++) {
+                $subCode = str_pad($i, 2, '0', STR_PAD_LEFT);
+                $villageCode = $districtCode . '.' . $subCode;
+
                 $villages[] = [
-                    'code' => $districtCode . Str::padLeft($i, 3, '0'),
+                    'code' => $villageCode,
                     'district_code' => $districtCode,
-                    'name' => 'Desa ' . Str::random(5) . ' ' . $districtCode,
+                    'name' => 'Kelurahan ' . Str::ucfirst(Str::lower(Str::random(6))),
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
             }
         }
 
-        DB::table('villages')->insert($villages);
-
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        foreach (array_chunk($villages, 500) as $chunk) {
+            DB::table('villages')->insert($chunk);
+        }
     }
 }
