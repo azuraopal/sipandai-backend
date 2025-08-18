@@ -77,18 +77,56 @@ class VillageController extends Controller
         ], 201);
     }
 
-    public function show(VillageController $villageController)
+    public function show(Village $village)
     {
-        //
+        $this->authorize('view', $village);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Detail kelurahan berhasil diambil.',
+            'data' => $village->load('district'),
+            'errors' => null,
+        ]);
     }
 
-    public function update(Request $request, VillageController $villageController)
+    public function update(Request $request, Village $village)
     {
-        //
+        $this->authorize('update', $village);
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'sometimes|required|string|max:255',
+        ]);
+
+        if($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal.',
+                'data' => null,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $village->update($validator->validated());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Kelurahan berhasil diperbarui.',
+            'data' => $village->load('district'),
+            'errors' => null,
+        ]);
     }
 
-    public function destroy(VillageController $villageController)
+    public function destroy(Village $village)
     {
-        //
+        $this->authorize('destroy', $village);
+
+        $village->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Kelurahan berhasil dihapus.',
+            'data' => null,
+            'errors' => null,
+        ]);
     }
 }
