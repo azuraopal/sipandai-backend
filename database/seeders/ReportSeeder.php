@@ -26,6 +26,7 @@ class ReportSeeder extends Seeder
             ReportStatus::COMPLETED->value,
         ];
 
+        $faker = \Faker\Factory::create('id_ID');
         $reports = [];
 
         foreach ($statuses as $status) {
@@ -41,6 +42,7 @@ class ReportSeeder extends Seeder
                     'title' => "Laporan Dummy [$status] #$i",
                     'description' => "Ini adalah laporan dummy dengan status $status.",
                     'address_detail' => "Alamat detail laporan dummy $i untuk status $status.",
+                    'coordinates' => DB::raw("ST_GeomFromText('POINT(" . $faker->latitude . " " . $faker->longitude . ")', 4326)"),
                     'phone_number' => '08' . rand(1000000000, 9999999999),
                     'current_status' => $status,
                     'created_at' => now(),
@@ -50,12 +52,5 @@ class ReportSeeder extends Seeder
         }
 
         DB::table('reports')->insert($reports);
-
-        foreach (DB::table('reports')->get() as $report) {
-            $lat = -6.5 + (mt_rand() / mt_getrandmax()) * 0.5;
-            $lng = 106.5 + (mt_rand() / mt_getrandmax()) * 0.5;
-
-            DB::statement("UPDATE reports SET coordinates = ST_GeomFromText('POINT($lng $lat)') WHERE id = '{$report->id}'");
-        }
     }
 }
