@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\DistrictController;
 use App\Http\Controllers\Api\GoogleAuthController;
 use App\Http\Controllers\Api\OpdController;
+use App\Http\Controllers\Api\VillageController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 
@@ -21,6 +22,13 @@ Route::prefix('v1')->group(function () {
             Route::get('/{id}', [DistrictController::class, 'show']);
             Route::put('/{id}', [DistrictController::class, 'update']);
             Route::delete('/{id}', [DistrictController::class, 'delete']);
+        });
+        Route::prefix('/village')->group(function () {
+            Route::get('/', [VillageController::class, 'index']);
+            Route::post('/create', [VillageController::class, 'store']);
+            Route::get('/{id}', [VillageController::class, 'show']);
+            Route::put('/{id}', [VillageController::class, 'update']);
+            Route::delete('/{id}', [VillageController::class, 'delete']);
         });
         Route::prefix('/opd')->group(function () {
             Route::get('/', [OpdController::class, 'index']);
