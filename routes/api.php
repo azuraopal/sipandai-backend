@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\DistrictController;
+use App\Http\Controllers\Api\OpdController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 
@@ -10,6 +12,20 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::middleware('auth:sanctum')->group(function () {
+        Route::prefix('/district')->group(function () {
+            Route::get('/', [DistrictController::class, 'index']);
+            Route::post('/create', [DistrictController::class, 'store']);
+            Route::get('/{id}', [DistrictController::class, 'show']);
+            Route::put('/{id}', [DistrictController::class, 'update']);
+            Route::delete('/{id}', [DistrictController::class, 'delete']);
+        });
+        Route::prefix('/opd')->group(function () {
+            Route::get('/', [OpdController::class, 'index']);
+            Route::post('/create', [OpdController::class, 'store']);
+            Route::get('/{id}', [OpdController::class, 'show']);
+            Route::put('/{id}', [OpdController::class, 'update']);
+            Route::delete('/{id}', [OpdController::class, 'delete']);
+        });
 
     });
 });

@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use App\Models\District;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\Controller;
 
 class DistrictController extends Controller
 {
@@ -32,8 +33,7 @@ class DistrictController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'code' => 'required|string|max:2|unique:districts,code',
-            'name' => 'required|string|max:255'
+            'name' => 'required|string|unique:districts|max:255'
         ]);
 
         if ($validator->fails()) {
@@ -45,12 +45,25 @@ class DistrictController extends Controller
             ], 422);
         }
 
-        $district = District::create($request->only(['code', 'name']));
+        $lastDistrict = District::query()->orderBy('code', 'DESC')->first();
+
+        if($lastDistrict) {
+            $nextCodeNumber = (int)$lastDistrict->code + 1;
+        } else {
+            $nextCodeNumber = 1;
+        }
+
+        $code = str_pad($nextCodeNumber, 2, '0', STR_PAD_LEFT);
+
+        $district = District::create([
+            'code' => $code,
+            'name' => $request->name
+        ]);
 
         return response()->json([
             'success' => true,
             'message' => 'District berhasil ditambahkan',
-            'data' => [$district],
+            'data' => $district,
             'errors' => null
         ], 201);
     }

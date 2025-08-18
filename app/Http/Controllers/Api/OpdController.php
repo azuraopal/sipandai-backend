@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use App\Models\Opd;
 use App\Policies\PostPolicyOpd;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use App\Http\Controllers\Controller;
 
 #[Opd(PostPolicyOpd::class)]
 class OpdController extends Controller
