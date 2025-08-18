@@ -14,12 +14,14 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->string('google_id')->nullable()->unique();
             $table->uuid('opd_id')->nullable();
             $table->string('full_name');
             $table->string('email')->unique();
-            $table->string('password');
+            $table->string('password')->nullable();
             $table->string('role')->default(UserRole::CITIZEN->value);
             $table->string('profile_picture_url')->nullable();
+            $table->string('avatar')->nullable();
             $table->string('district_id', 2)->nullable();
             $table->rememberToken();
             $table->timestamps();
