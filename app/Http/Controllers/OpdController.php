@@ -1,0 +1,176 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Opd;
+use App\Policies\PostPolicyOpd;
+use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+
+#[Opd(PostPolicyOpd::class)]
+class OpdController extends Controller
+{
+    /**
+     * Menampilkan daftar semua OPD dengan pagination.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function index()
+    {
+        try {
+            $opds = Opd::paginate(10);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Daftar OPD berhasil diambil.',
+                'data' => [
+                    'items' => $opds->items(),
+                    'meta' => [
+                        'current_page' => $opds->currentPage(),
+                        'last_page' => $opds->lastPage(),
+                        'per_page' => $opds->perPage(),
+                        'total' => $opds->total(),
+                    ]
+                ],
+                'errors' => null
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data OPD.',
+                'data' => null,
+                'errors' => [$e->getMessage()]
+            ], 500);
+        }
+    }
+
+    /**
+     * 
+     *
+     * @param  \Illuminate\Http\Request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function store(Request $request)
+    {
+        try {
+            $request->validate([
+                'name' => 'required|string|max:100|unique:opds,name',
+            ]);
+
+            $opd = Opd::create($request->all());
+
+            return response()->json([
+                'success' => true,
+                'message' => 'OPD berhasil dibuat.',
+                'data' => [$opd],
+                'errors' => null
+            ], 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Input tidak valid.',
+                'data' => null,
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal membuat OPD.',
+                'data' => null,
+                'errors' => [$e->getMessage()]
+            ], 500);
+        }
+    }
+
+    /**
+     * 
+     *
+     * @param  \App\Models\Opd  $opd
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show(Opd $opd)
+    {
+        try {
+            return response()->json([
+                'success' => true,
+                'message' => 'Detail OPD berhasil diambil.',
+                'data' => [$opd],
+                'errors' => null
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil detail OPD.',
+                'data' => null,
+                'errors' => [$e->getMessage()]
+            ], 404);
+        }
+    }
+
+    /**
+     * 
+     *
+     * @param  \Illuminate\Http\Request 
+     * @param  \App\Models\Opd
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update(Request $request, Opd $opd)
+    {
+        try {
+            $request->validate([
+                'name' => 'required|string|max:100|unique:opds,name,' . $opd->id,
+            ]);
+
+            $opd->update($request->all());
+
+            return response()->json([
+                'success' => true,
+                'message' => 'OPD berhasil diperbarui.',
+                'data' => [$opd],
+                'errors' => null
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Input tidak valid.',
+                'data' => null,
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui OPD.',
+                'data' => null,
+                'errors' => [$e->getMessage()]
+            ], 500);
+        }
+    }
+
+    /**
+     * 
+     *
+     * @param  \App\Models\Opd
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroy(Opd $opd)
+    {
+        try {
+            $opd->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'OPD berhasil dihapus.',
+                'data' => null,
+                'errors' => null
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus OPD.',
+                'data' => null,
+                'errors' => [$e->getMessage()]
+            ], 500);
+        }
+    }
+}
