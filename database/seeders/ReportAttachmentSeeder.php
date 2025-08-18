@@ -42,7 +42,7 @@ class ReportAttachmentSeeder extends Seeder
                 'purpose' => $purposes[array_rand($purposes)],
                 'file_url' => 'https://example.com/files/report_attachment_' . $i . '.' . (rand(0, 1) ? 'pdf' : 'jpg'),
                 'file_type' => $fileTypes[array_rand($fileTypes)],
-                'created_at' => now(), // sesuai migration useCurrent()
+                'created_at' => now(),
             ];
         }
 

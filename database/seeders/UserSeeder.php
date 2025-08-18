@@ -16,16 +16,12 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        // Menonaktifkan pemeriksaan foreign key sementara
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-        // Gunakan Faker untuk menghasilkan data acak
         $faker = \Faker\Factory::create('id_ID');
 
-        // Hapus data yang ada sebelumnya untuk menghindari duplikasi
         DB::table('users')->truncate();
 
-        // Data dummy untuk user Admin
         DB::table('users')->insert([
             'id' => (string) Str::uuid(),
             'google_id' => null,
@@ -42,7 +38,6 @@ class UserSeeder extends Seeder
             'updated_at' => now(),
         ]);
 
-        // Data dummy untuk 50 user Citizen
         for ($i = 0; $i < 50; $i++) {
             DB::table('users')->insert([
                 'id' => (string) Str::uuid(),
@@ -61,7 +56,6 @@ class UserSeeder extends Seeder
             ]);
         }
 
-        // Data dummy untuk 10 user OPD Staff
         for ($i = 0; $i < 10; $i++) {
             DB::table('users')->insert([
                 'id' => (string) Str::uuid(),
@@ -80,7 +74,6 @@ class UserSeeder extends Seeder
             ]);
         }
 
-        // Data dummy untuk 10 user District Admin
         for ($i = 0; $i < 10; $i++) {
             DB::table('users')->insert([
                 'id' => (string) Str::uuid(),
@@ -99,7 +92,6 @@ class UserSeeder extends Seeder
             ]);
         }
 
-        // Data dummy untuk 10 user QC Officer
         for ($i = 0; $i < 10; $i++) {
             DB::table('users')->insert([
                 'id' => (string) Str::uuid(),
@@ -118,7 +110,6 @@ class UserSeeder extends Seeder
             ]);
         }
 
-        // Data dummy untuk 10 user Field Officer
         for ($i = 0; $i < 10; $i++) {
             DB::table('users')->insert([
                 'id' => (string) Str::uuid(),
@@ -136,8 +127,6 @@ class UserSeeder extends Seeder
                 'updated_at' => now(),
             ]);
         }
-        
-        // Mengaktifkan kembali pemeriksaan foreign key
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 }

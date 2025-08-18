@@ -28,11 +28,10 @@ class ReportHistorySeeder extends Seeder
 
         $histories = [];
 
-        // ambil semua report yg sudah ada
         $reports = DB::table('reports')->pluck('id');
 
         foreach ($reports as $reportId) {
-            // setiap report punya 3-5 history status random
+
             $count = rand(3, 5);
             $pickedStatuses = collect($statuses)->random($count)->values();
 

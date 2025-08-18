@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
             ReportCategorySeeder::class,
             ReportSeeder::class,
             ReportHistorySeeder::class,
-            ReportAttachmentSeeder::class,  
-    ]);
+            ReportAttachmentSeeder::class,
+        ]);
     }
 }

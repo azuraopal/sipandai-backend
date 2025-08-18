@@ -13,14 +13,10 @@ class DistrictSeeder extends Seeder
      */
     public function run()
     {
-        // Menonaktifkan pemeriksaan foreign key sementara untuk memastikan tabel bisa dikosongkan.
-        // Ini tidak diperlukan untuk tabel ini, tetapi adalah praktik yang baik.
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        
-        // Mengosongkan tabel 'districts' sebelum memasukkan data baru
+
         DB::table('districts')->truncate();
 
-        // Data dummy untuk tabel 'districts'
         $districts = [
             ['code' => '01', 'name' => 'Kecamatan Bandung Wetan'],
             ['code' => '02', 'name' => 'Kecamatan Cibeunying Kidul'],
@@ -34,10 +30,8 @@ class DistrictSeeder extends Seeder
             ['code' => '10', 'name' => 'Kecamatan Lengkong'],
         ];
 
-        // Memasukkan data ke dalam tabel
         DB::table('districts')->insert($districts);
-        
-        // Mengaktifkan kembali pemeriksaan foreign key
+
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 }

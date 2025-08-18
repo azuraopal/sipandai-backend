@@ -28,7 +28,6 @@ class ReportSeeder extends Seeder
 
         $reports = [];
 
-        // Misal kita buat 80 data, masing-masing status 10
         foreach ($statuses as $status) {
             for ($i = 1; $i <= 10; $i++) {
                 $reports[] = [
@@ -52,9 +51,8 @@ class ReportSeeder extends Seeder
 
         DB::table('reports')->insert($reports);
 
-        // Update koordinat POINT (acak)
         foreach (DB::table('reports')->get() as $report) {
-            $lat = -6.5 + (mt_rand() / mt_getrandmax()) * 0.5;   // sekitar Bogor
+            $lat = -6.5 + (mt_rand() / mt_getrandmax()) * 0.5;
             $lng = 106.5 + (mt_rand() / mt_getrandmax()) * 0.5;
 
             DB::statement("UPDATE reports SET coordinates = ST_GeomFromText('POINT($lng $lat)') WHERE id = '{$report->id}'");
