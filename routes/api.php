@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\DistrictController;
+use App\Http\Controllers\Api\GoogleAuthController;
 use App\Http\Controllers\Api\OpdController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
@@ -9,6 +10,8 @@ Route::prefix('v1')->group(function () {
     Route::prefix('/auth')->group(function () {
         Route::post('/login', [AuthController::class, 'login']);
         Route::post('/register', [AuthController::class, 'register']);
+        Route::get('/google', [GoogleAuthController::class, 'redirect'])->name('auth.google');
+        Route::get('/google/callback', [GoogleAuthController::class, 'callback']);
     });
 
     Route::middleware('auth:sanctum')->group(function () {
