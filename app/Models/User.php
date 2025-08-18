@@ -24,7 +24,15 @@ class User extends Authenticatable
         'fullname',
         'email',
         'password',
+        'role',
+        'profile_picture_url',
+        'district_id',
+        'opd_id',
     ];
+
+    public function opd() {
+        return $this->belongsTo(Opd::class, 'opd_id', 'id');
+    }
 
     /**
      * The attributes that should be hidden for serialization.
