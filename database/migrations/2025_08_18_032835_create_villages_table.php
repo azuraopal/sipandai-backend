@@ -18,7 +18,6 @@ return new class extends Migration {
                 ->on('districts')
                 ->onUpdate('cascade')
                 ->onDelete('restrict');
-
             $table->string('name', 255);
             $table->timestamps();
         });
