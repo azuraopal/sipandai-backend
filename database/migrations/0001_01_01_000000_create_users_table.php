@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('password')->nullable();
             $table->string('role')->default(UserRole::CITIZEN->value);
             $table->string('profile_picture_url')->nullable();
-            $table->string('avatar')->nullable();
+            $table->text('avatar')->nullable();
             $table->string('district_id', 2)->nullable();
             $table->rememberToken();
             $table->timestamps();
