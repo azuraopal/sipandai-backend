@@ -23,20 +23,31 @@ class GoogleAuthController extends Controller
         try {
             $googleUser = Socialite::driver('google')->stateless()->user();
 
-            $user = User::updateOrCreate([
-                'google_id' => $googleUser->getId(),
-            ], [
-                'full_name' => $googleUser->getName(),
-                'email' => $googleUser->getEmail(),
-                'avatar' => $googleUser->getAvatar(),
-                'password' => Hash::make(Str::random(24))
-            ]);
+            $user = User::where('google_id', $googleUser->getId())->first();
+
+            if(!$user) {
+                $user = User::where('email', $googleUser->getEmail())->first();
+
+                if($user) {
+                    $user->update(['google_id' => $googleUser->getId()]);
+                }
+            }
+
+            if(!$user) {
+                $user = User::create([
+                    'google_id' => $googleUser->getId(),
+                    'full_name' => $googleUser->getName(),
+                    'email' => $googleUser->getEmail(),
+                    'avatar' => $googleUser->getAvatar(),
+                    'password' => Hash::make(Str::random(24)),
+                ]);
+            }
 
             $token = $user->createToken('auth_token')->plainTextToken;
 
             return response()->json([
                 'success' => true,
-                'message' => 'User authenticated successfully',
+                'message' => 'Authentication successfully',
                 'data' => [
                     'user' => $user,
                     'token' => $token,
