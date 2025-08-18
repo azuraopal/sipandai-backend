@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use App\Policies\PostPolicy;
+use App\Policies\DistrictPolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-#[District(PostPolicy::class)]
+#[DistrictPolicy(District::class)]
 class District extends Model
 {
     use HasFactory;

@@ -8,11 +8,13 @@ use App\Policies\DistrictPolicy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-#[District(DistrictPolicy::class)]
+#[DistrictPolicy(District::class)]
 class DistrictController extends Controller
 {
     public function index(Request $request)
     {
+        $this->authorize('viewAny', District::class);
+
         $perPage = $request->get('per_page', 10);
         $districts = District::paginate($perPage);
 
@@ -34,6 +36,8 @@ class DistrictController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorize('create', District::class);
+        
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|unique:districts|max:255'
         ]);
@@ -72,6 +76,8 @@ class DistrictController extends Controller
 
     public function show(District $district)
     {
+        $this->authorize('view', $district);
+        
         return response()->json([
             'success' => true,
             'message' => 'Detail district berhasil diambil',
@@ -82,6 +88,7 @@ class DistrictController extends Controller
 
     public function update(Request $request, District $district)
     {
+        $this->authorize('update', $district);
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255'
         ]);
@@ -108,6 +115,7 @@ class DistrictController extends Controller
     }
 
     public function destroy(District $district) {
+        $this->authorize('delete', $district);
         $district->delete();
 
         return response()->json([

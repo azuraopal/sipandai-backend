@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use App\Http\Controllers\Controller;
 
-#[Opd(OpdPolicy::class)]
+#[OpdPolicy(Opd::class)]
 class OpdController extends Controller
 {
     /**
