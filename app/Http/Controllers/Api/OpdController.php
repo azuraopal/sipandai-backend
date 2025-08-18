@@ -10,11 +10,6 @@ use App\Http\Controllers\Controller;
 #[OpdPolicy(Opd::class)]
 class OpdController extends Controller
 {
-    /**
-     * Menampilkan daftar semua OPD dengan pagination.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function index()
     {
         $this->authorize('viewAny', Opd::class);
@@ -46,12 +41,6 @@ class OpdController extends Controller
         }
     }
 
-    /**
-     * 
-     *
-     * @param  \Illuminate\Http\Request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function store(Request $request)
     {
         $this->authorize('create', Opd::class);
@@ -85,12 +74,6 @@ class OpdController extends Controller
         }
     }
 
-    /**
-     * 
-     *
-     * @param  \App\Models\Opd  $opd
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function show(Opd $opd)
     {
         $this->authorize('view', $opd);
@@ -111,13 +94,6 @@ class OpdController extends Controller
         }
     }
 
-    /**
-     * 
-     *
-     * @param  \Illuminate\Http\Request 
-     * @param  \App\Models\Opd
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function update(Request $request, Opd $opd)
     {
         $this->authorize('update', $opd);
@@ -151,12 +127,6 @@ class OpdController extends Controller
         }
     }
 
-    /**
-     * 
-     *
-     * @param  \App\Models\Opd
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function destroy(Opd $opd)
     {
         $this->authorize('delete', $opd);
