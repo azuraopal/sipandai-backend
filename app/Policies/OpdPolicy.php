@@ -2,12 +2,12 @@
 
 namespace App\Policies;
 
+use App\Enums\UserRole;
 use App\Models\Opd;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
-Use App\Enums\UserRole;
 
-class PostPolicyOpd
+class OpdPolicy
 {
     /**
      * Determine whether the user can view any models.

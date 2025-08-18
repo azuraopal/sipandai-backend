@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Models\District;
 use App\Models\Opd;
+use App\Policies\DistrictPolicy;
+use App\Policies\OpdPolicy;
 use App\Policies\PostPolicy;
 use App\Policies\PostPolicyOpd;
 use Illuminate\Support\Facades\Gate;
@@ -24,8 +26,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Gate::policy(District::class, PostPolicy::class);
-        Gate::policy(Opd::class, PostPolicyOpd::class);
+        Gate::policy(District::class, OpdPolicy::class);
+        Gate::policy(Opd::class, DistrictPolicy::class);
     }
 
 }

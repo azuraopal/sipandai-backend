@@ -2,30 +2,27 @@
 
 namespace App\Policies;
 
+use App\Enums\UserRole;
 use App\Models\District;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
-class PostPolicy
+class DistrictPolicy
 {
-    public function isCityAdmin(User $user): bool
-    {
-        return $user->role === \App\Enums\UserRole::CITY_ADMIN;
-    }
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return $this->isCityAdmin($user);
+        return $user->role === UserRole::CITY_ADMIN;
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, District $district): bool
+    public function view(User $user, District $opd): bool
     {
-        return $this->isCityAdmin($user);
+        return $user->role === UserRole::CITY_ADMIN;
     }
 
     /**
@@ -33,7 +30,7 @@ class PostPolicy
      */
     public function create(User $user): bool
     {
-        return $this->isCityAdmin($user);
+        return $user->role === UserRole::CITY_ADMIN;
     }
 
     /**
@@ -41,7 +38,7 @@ class PostPolicy
      */
     public function update(User $user, District $district): bool
     {
-        return $this->isCityAdmin($user);
+        return $user->role === UserRole::CITY_ADMIN;
     }
 
     /**
@@ -49,7 +46,7 @@ class PostPolicy
      */
     public function delete(User $user, District $district): bool
     {
-        return $this->isCityAdmin($user);
+        return $user->role === UserRole::CITY_ADMIN;
     }
 
     /**
@@ -57,7 +54,7 @@ class PostPolicy
      */
     public function restore(User $user, District $district): bool
     {
-        return false;
+        return $user->role === UserRole::CITY_ADMIN;
     }
 
     /**
@@ -65,6 +62,6 @@ class PostPolicy
      */
     public function forceDelete(User $user, District $district): bool
     {
-        return false;
+        return $user->role === UserRole::CITY_ADMIN;
     }
 }
