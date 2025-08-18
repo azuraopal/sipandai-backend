@@ -1,0 +1,143 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Enums\UserRole;
+use Hash;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Str;
+
+class UserSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run()
+    {
+        // Menonaktifkan pemeriksaan foreign key sementara
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+        // Gunakan Faker untuk menghasilkan data acak
+        $faker = \Faker\Factory::create('id_ID');
+
+        // Hapus data yang ada sebelumnya untuk menghindari duplikasi
+        DB::table('users')->truncate();
+
+        // Data dummy untuk user Admin
+        DB::table('users')->insert([
+            'id' => (string) Str::uuid(),
+            'google_id' => null,
+            'opd_id' => null,
+            'full_name' => 'Admin Utama',
+            'email' => 'admin@example.com',
+            'password' => Hash::make('password'),
+            'role' => UserRole::CITY_ADMIN->value,
+            'profile_picture_url' => $faker->imageUrl(640, 480, 'people', true, 'Faker'),
+            'avatar' => null,
+            'district_id' => $faker->numberBetween(10, 99),
+            'remember_token' => Str::random(10),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Data dummy untuk 50 user Citizen
+        for ($i = 0; $i < 50; $i++) {
+            DB::table('users')->insert([
+                'id' => (string) Str::uuid(),
+                'google_id' => null,
+                'opd_id' => null,
+                'full_name' => $faker->name,
+                'email' => $faker->unique()->safeEmail,
+                'password' => Hash::make('password'),
+                'role' => UserRole::CITIZEN->value,
+                'profile_picture_url' => $faker->imageUrl(640, 480, 'people', true, 'Faker'),
+                'avatar' => null,
+                'district_id' => $faker->numberBetween(10, 99),
+                'remember_token' => Str::random(10),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        // Data dummy untuk 10 user OPD Staff
+        for ($i = 0; $i < 10; $i++) {
+            DB::table('users')->insert([
+                'id' => (string) Str::uuid(),
+                'google_id' => null,
+                'opd_id' => (string) Str::uuid(),
+                'full_name' => $faker->name,
+                'email' => 'opdstaff' . ($i + 1) . '@example.com',
+                'password' => Hash::make('password'),
+                'role' => UserRole::OPD_ADMIN->value,
+                'profile_picture_url' => $faker->imageUrl(640, 480, 'business', true, 'Faker'),
+                'avatar' => null,
+                'district_id' => $faker->numberBetween(10, 99),
+                'remember_token' => Str::random(10),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        // Data dummy untuk 10 user District Admin
+        for ($i = 0; $i < 10; $i++) {
+            DB::table('users')->insert([
+                'id' => (string) Str::uuid(),
+                'google_id' => null,
+                'opd_id' => null,
+                'full_name' => $faker->name,
+                'email' => 'districta' . ($i + 1) . '@example.com',
+                'password' => Hash::make('password'),
+                'role' => UserRole::DISTRICT_ADMIN->value,
+                'profile_picture_url' => $faker->imageUrl(640, 480, 'business', true, 'Faker'),
+                'avatar' => null,
+                'district_id' => $faker->numberBetween(10, 99),
+                'remember_token' => Str::random(10),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        // Data dummy untuk 10 user QC Officer
+        for ($i = 0; $i < 10; $i++) {
+            DB::table('users')->insert([
+                'id' => (string) Str::uuid(),
+                'google_id' => null,
+                'opd_id' => null,
+                'full_name' => $faker->name,
+                'email' => 'qcofficer' . ($i + 1) . '@example.com',
+                'password' => Hash::make('password'),
+                'role' => UserRole::QC_OFFICER->value,
+                'profile_picture_url' => $faker->imageUrl(640, 480, 'business', true, 'Faker'),
+                'avatar' => null,
+                'district_id' => $faker->numberBetween(10, 99),
+                'remember_token' => Str::random(10),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        // Data dummy untuk 10 user Field Officer
+        for ($i = 0; $i < 10; $i++) {
+            DB::table('users')->insert([
+                'id' => (string) Str::uuid(),
+                'google_id' => null,
+                'opd_id' => null,
+                'full_name' => $faker->name,
+                'email' => 'fieldofficer' . ($i + 1) . '@example.com',
+                'password' => Hash::make('password'),
+                'role' => UserRole::FIELD_OFFICER->value,
+                'profile_picture_url' => $faker->imageUrl(640, 480, 'business', true, 'Faker'),
+                'avatar' => null,
+                'district_id' => $faker->numberBetween(10, 99),
+                'remember_token' => Str::random(10),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+        
+        // Mengaktifkan kembali pemeriksaan foreign key
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+    }
+}
