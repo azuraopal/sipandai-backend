@@ -7,6 +7,7 @@ use App\Models\District;
 use App\Policies\DistrictPolicy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\Controller;
 
 #[District(DistrictPolicy::class)]
 class DistrictController extends Controller
