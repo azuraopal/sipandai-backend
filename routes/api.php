@@ -15,6 +15,8 @@ Route::prefix('v1')->group(function () {
         Route::get('/google/callback', [GoogleAuthController::class, 'callback']);
         Route::post('forgot-password', [AuthController::class, 'forgotPassword']);
         Route::post('reset-password', [AuthController::class, 'resetPassword']);
+        Route::post('/verify-email', [AuthController::class, 'verifyEmail']);
+        Route::post('/resend-verification', [AuthController::class, 'resendVerificationCode']);
     });
 
     Route::middleware('auth:sanctum')->group(function () {
