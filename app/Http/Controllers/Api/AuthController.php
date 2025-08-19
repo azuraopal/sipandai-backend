@@ -183,7 +183,7 @@ class AuthController extends Controller
             ->where('email', $request->email)
             ->first();
 
-        if (!$tokenData || Carbon::parse($tokenData->created_at)->addMinutes(15)->isPast()) {
+        if (!$tokenData || Carbon::parse($tokenData->created_at)->addMinutes(5)->isPast()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Kode verifikasi tidak valid atau telah kedaluwarsa.',
