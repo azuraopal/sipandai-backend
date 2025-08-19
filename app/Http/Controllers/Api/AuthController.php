@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\EmailVerificationMail;
 use App\Mail\ForgotPasswordMail;
 use App\Models\User;
 use Carbon\Carbon;
@@ -32,19 +33,101 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $user = User::create($validator->validated());
+        $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        $user = User::create(array_merge($validator->validated(), [
+            'verification_code' => $code,
+            'verification_code_expires_at' => now()->addMinutes(5),
+        ]));
+
+        try {
+            Mail::to($user->email)->send(new EmailVerificationMail($code));
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Registrasi berhasil, namun gagal mengirim email verifikasi.'
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Registrasi berhasil. Silahkan cek email Anda untuk kode verifikasi.'
+        ]);
+    }
+
+    public function verifyEmail(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'code' => 'required|string|min:6|max:6',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $user = User::where('verification_code', $request->code)->first();
+
+        if (!$user || $user->email_verified_at) {
+            return response()->json([
+                'message' => 'Kode verifikasi tidak valid.'
+            ], 400);
+        }
+
+        if ($user->verification_code_expires_at->isPast()) {
+            return response()->json([
+                'message' => 'Kode verifikasi sudah kadaluarsa.'
+            ], 422);
+        }
+
+        $user->email_verified_at = now();
+        $user->verification_code = null;
+        $user->verification_code_expires_at = null;
+        $user->save();
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'success' => true,
-            'message' => 'User registered successfully',
+            'message' => 'Email berhasil diverifikasi.',
             'data' => [
                 'user' => $user,
-                'token' => $token,
+                'token' => $token
             ],
-            'errors' => null,
-        ], 201);
+        ]);
+    }
+
+    public function resendVerificationCode(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|string|email|exists:users,email',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        if ($user->email_verified_at) {
+            return response()->json(['message' => 'Email sudah terverifikasi.'], 400);
+        }
+
+        $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $user->verification_code = $code;
+        $user->verification_code_expires_at = now()->addMinutes(15);
+        $user->save();
+
+        try {
+            Mail::to($user->email)->send(new EmailVerificationMail($code));
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Gagal mengirim ulang email verifikasi.'], 500);
+        }
+
+        return response()->json([
+            'message' => 'Kode verifikasi baru telah dikirim.'
+        ]);
     }
 
     public function login(Request $request)
