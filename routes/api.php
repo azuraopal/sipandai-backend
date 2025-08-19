@@ -13,11 +13,13 @@ Route::prefix('v1')->group(function () {
         Route::post('/register', [AuthController::class, 'register']);
         Route::get('/google', [GoogleAuthController::class, 'redirect'])->name('auth.google');
         Route::get('/google/callback', [GoogleAuthController::class, 'callback']);
+        Route::post('forgot-password', [AuthController::class, 'forgotPassword']);
+        Route::post('reset-password', [AuthController::class, 'resetPassword']);
     });
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('/auth')->group(function () {
-            Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+            Route::post('/change-password', [AuthController::class, 'changePassword']);
         });
         Route::prefix('/district')->group(function () {
             Route::get('/', [DistrictController::class, 'index']);
