@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\District;
 use App\Policies\DistrictPolicy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-
 #[DistrictPolicy(District::class)]
+
 class DistrictController extends Controller
 {
     public function index(Request $request)
@@ -39,49 +40,74 @@ class DistrictController extends Controller
         $this->authorize('create', District::class);
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|unique:districts|max:255'
+            'name' => 'required|string|max:255|unique:districts,name',
+            'villages' => 'required|array|min:1',
+            'villages.*.name' => 'required|string|max:255',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Validasi gagal',
+                'message' => 'Validasi gagal.',
                 'data' => null,
                 'errors' => $validator->errors()
             ], 422);
         }
 
-        $lastDistrict = District::query()->orderBy('code', 'DESC')->first();
+        try {
+            DB::beginTransaction();
 
-        if ($lastDistrict) {
-            $nextCodeNumber = (int) $lastDistrict->code + 1;
-        } else {
-            $nextCodeNumber = 1;
+            $lastDistrict = District::query()->orderBy('code', 'desc')->first();
+            $nextCodeNumber = $lastDistrict ? ((int) $lastDistrict->code + 1) : 1;
+            $districtCode = str_pad($nextCodeNumber, 2, '0', STR_PAD_LEFT);
+
+            $district = District::create([
+                'code' => $districtCode,
+                'name' => $request->name,
+            ]);
+
+            $villagesData = [];
+            foreach ($request->villages as $index => $village) {
+                $subCode = str_pad($index + 1, 2, '0', STR_PAD_LEFT);
+                $villagesData[] = [
+                    'code' => $districtCode . '.' . $subCode,
+                    'district_code' => $districtCode,
+                    'name' => $village['name'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+            $district->villages()->createMany($villagesData);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Kecamatan beserta desa berhasil ditambahkan.',
+                'data' => $district->load('villages'),
+                'errors' => null
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menyimpan data.',
+                'data' => null,
+                'errors' => $e->getMessage()
+            ], 500);
         }
-
-        $code = str_pad($nextCodeNumber, 2, '0', STR_PAD_LEFT);
-
-        $district = District::create([
-            'code' => $code,
-            'name' => $request->name
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'District berhasil ditambahkan',
-            'data' => $district,
-            'errors' => null
-        ], 201);
     }
 
-    public function show(District $district)
+    public function show(District $id)
     {
-        $this->authorize('view', $district);
+        $this->authorize('view', $id);
 
         return response()->json([
             'success' => true,
             'message' => 'Detail district berhasil diambil',
-            'data' => [$district],
+            'data' => $id->load('villages'),
             'errors' => null
         ], 200);
     }
@@ -114,10 +140,10 @@ class DistrictController extends Controller
         ], 200);
     }
 
-    public function destroy(District $district)
+    public function destroy(District $id)
     {
-        $this->authorize('delete', $district);
-        $district->delete();
+        $this->authorize('destroy', $id);
+        $id->delete();
 
         return response()->json([
             'success' => true,
