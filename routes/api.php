@@ -18,18 +18,17 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('/district')->group(function () {
             Route::get('/', [DistrictController::class, 'index']);
-            Route::post('/create', [DistrictController::class, 'store']);
+            Route::post('/', [DistrictController::class, 'store']);
             Route::get('/{id}', [DistrictController::class, 'show']);
             Route::put('/{id}', [DistrictController::class, 'update']);
-            Route::delete('/{id}', [DistrictController::class, 'delete']);
+            Route::delete('/{id}', [DistrictController::class, 'destroy']);
         });
+
         Route::prefix('/village')->group(function () {
-            Route::get('/', [VillageController::class, 'index']);
-            Route::post('/create', [VillageController::class, 'store']);
-            Route::get('/{id}', [VillageController::class, 'show']);
             Route::put('/{id}', [VillageController::class, 'update']);
-            Route::delete('/{id}', [VillageController::class, 'delete']);
+            Route::delete('/{id}', [VillageController::class, 'destroy']);
         });
+
         Route::prefix('/opd')->group(function () {
             Route::get('/', [OpdController::class, 'index']);
             Route::post('/create', [OpdController::class, 'store']);
