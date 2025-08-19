@@ -18,10 +18,13 @@ return new class extends Migration
             $table->uuid('opd_id')->nullable();
             $table->string('full_name');
             $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('verification_code', 6)->nullable();
+            $table->timestamp('verification_code_expires_at')->nullable();
             $table->string('password')->nullable();
             $table->string('role')->default(UserRole::CITIZEN->value);
             $table->string('profile_picture_url')->nullable();
-            $table->text('avatar')->nullable();
+            $table->text('avatar')->nullable(); 
             $table->string('district_id', 2)->nullable();
             $table->rememberToken();
             $table->timestamps();
