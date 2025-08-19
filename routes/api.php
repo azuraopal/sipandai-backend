@@ -16,6 +16,9 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::middleware('auth:sanctum')->group(function () {
+        Route::prefix('/auth')->group(function () {
+            Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+        });
         Route::prefix('/district')->group(function () {
             Route::get('/', [DistrictController::class, 'index']);
             Route::post('/', [DistrictController::class, 'store']);

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Validator;
 
@@ -75,6 +76,45 @@ class AuthController extends Controller
                 'user' => $user,
                 'token' => $token,
             ],
+            'errors' => null,
+        ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $user = $request->user();
+
+        $validator = Validator::make(request()->all(), [
+            'current_password' => ['required', Password::min(8)],
+            'new_password' => ['required', 'confirmed', Password::min(8)],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $validated = $validator->validated();
+
+        if(!Hash::check($validated['current_password'], $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Current password is incorrect',
+                'data' => null,
+                'errors' => null,
+            ], 401);
+        }
+
+        $user->password = Hash::make($validated['new_password']);
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password changed successfully',
+            'data' => null,
             'errors' => null,
         ]);
     }
