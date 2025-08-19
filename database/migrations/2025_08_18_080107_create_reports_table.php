@@ -29,6 +29,7 @@ return new class extends Migration
             $table->string('phone_number', 15);
             $table->string('current_status')->default(ReportStatus::PENDING_VERIFICATION->value);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

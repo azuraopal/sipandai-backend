@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('code', 2)->primary();
             $table->string('name', 255)->unique();
             $table->timestamp('created_at')->useCurrent();
+            $table->softDeletes();
         });
     }
 

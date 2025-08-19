@@ -18,6 +18,7 @@ return new class extends Migration {
             $table->string('status')->default(ReportStatus::PENDING_VERIFICATION->value);
             $table->text('notes')->nullable();
             $table->timestamp('created_at')->useCurrent();
+            $table->softDeletes();
         });
     }
 

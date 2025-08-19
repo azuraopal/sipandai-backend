@@ -21,6 +21,8 @@ class Village extends Model
         'name',
     ];
 
+    // protected $with = ['district'];
+
     public function district()
     {
         return $this->belongsTo(District::class, 'district_code', 'code');

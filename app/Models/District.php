@@ -5,11 +5,12 @@ namespace App\Models;
 use App\Policies\DistrictPolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[DistrictPolicy(District::class)]
 class District extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'districts';
     protected $primaryKey = 'code';
@@ -24,6 +25,13 @@ class District extends Model
     public $timestamps = false;
     const CREATED_AT = 'created_at';
     const UPDATED_AT = null;
+
+    // protected $with = ['villages'];
+
+    public function getRouteKeyName()
+    {
+        return 'code';
+    }
 
     public function users()
     {

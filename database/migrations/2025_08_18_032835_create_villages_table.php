@@ -17,7 +17,7 @@ return new class extends Migration {
                 ->references('code')
                 ->on('districts')
                 ->onUpdate('cascade')
-                ->onDelete('restrict');
+                ->onDelete('cascade');
             $table->string('name', 255);
             $table->timestamps();
         });
