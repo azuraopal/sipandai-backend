@@ -9,9 +9,6 @@ use Str;
 
 class ReportAttachmentSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $purposes = [

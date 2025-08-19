@@ -8,9 +8,6 @@ use Illuminate\Support\Facades\DB;
 
 class OpdSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $opds = [

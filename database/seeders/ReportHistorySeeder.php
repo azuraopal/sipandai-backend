@@ -10,9 +10,7 @@ use Str;
 
 class ReportHistorySeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
+
     public function run(): void
     {
         $statuses = [

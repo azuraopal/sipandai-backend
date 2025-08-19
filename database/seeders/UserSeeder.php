@@ -11,9 +11,6 @@ use Str;
 
 class UserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run()
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');

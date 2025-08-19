@@ -8,9 +8,6 @@ use Illuminate\Support\Facades\DB;
 
 class ReportTypeSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $reportTypes = [
