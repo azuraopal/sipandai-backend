@@ -104,7 +104,7 @@
                                                                 </div>
                                                                 <h1
                                                                     class="mb-0 mt-lg"style="font-family:Outfit,-apple-system,BlinkMacSystemFont,San Francisco,Segoe UI,Roboto,Helvetica Neue,Arial,sans-serif;font-weight:700;mso-line-height-rule:exactly;margin:0 0 .5em;color:#111827;font-size:30px;line-height:126%;margin-bottom:0;margin-top:24px">
-                                                                    Kode Pengaturan Ulang Kata Sandi Anda</h1>
+                                                                    Kode Verifikasi Email Anda</h1>
                                                         <tr>
                                                             <td
                                                                 style="font-family:Outfit,-apple-system,BlinkMacSystemFont,San Francisco,Segoe UI,Roboto,Helvetica Neue,Arial,sans-serif;padding:48px 48px;padding-top:0;padding-bottom:24px"class="content pb-lg pt-0">
