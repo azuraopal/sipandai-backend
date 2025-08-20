@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\UserRole;
+use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -12,29 +13,35 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasApiTokens, HasUuids;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'full_name',
         'email',
         'password',
-        'google_id',
-        'opd_id',
-        'district_id',
-        'role',
         'profile_picture_url',
         'district_id',
         'opd_id',
-        'email_verified_at',
-        'verification_code',
-        'verification_code_expires_at',
+        'google_id',
+        'role',
     ];
+
+    /**
+     * Hide secrets from API responses.
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+        'verification_code_hash',
+        'verification_code_expires_at',
+        'google_id',
+    ];
+
+    /**
+     * Append computed "role", "role_label" to keep API shape consistent.
+     */
+    protected $appends = ['role_label'];
 
     public function opd()
     {
@@ -42,23 +49,20 @@ class User extends Authenticatable
     }
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
+     * Label derived from the (casted) enum.
      */
-    protected $hidden = [
-        'password',
-        'remember_token',
-        'email_verified_at',
-        'verification_code',
-        'verification_code_expires_at',
-        'google_id',
-    ];
+    public function getRoleLabelAttribute(): string
+    {
+        $role = $this->getAttribute('role');
+        if ($role instanceof UserRole) {
+            return $role->label();
+        }
+
+        return $role ? (string) $role : '';
+    }
 
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Casts.
      */
     protected function casts(): array
     {
@@ -68,5 +72,15 @@ class User extends Authenticatable
             'password' => 'hashed',
             'role' => UserRole::class,
         ];
+    }
+
+    /**
+     * Always store email lowercased & trimmed.
+     */
+    protected function email(): Attribute
+    {
+        return Attribute::make(
+            set: fn($value) => mb_strtolower(trim($value))
+        );
     }
 }
