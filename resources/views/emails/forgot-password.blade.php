@@ -110,7 +110,7 @@
                                                                 style="font-family:Outfit,-apple-system,BlinkMacSystemFont,San Francisco,Segoe UI,Roboto,Helvetica Neue,Arial,sans-serif;padding:48px 48px;padding-top:0;padding-bottom:24px"class="content pb-lg pt-0">
                                                                 <p
                                                                     style="font-family:Outfit,-apple-system,BlinkMacSystemFont,San Francisco,Segoe UI,Roboto,Helvetica Neue,Arial,sans-serif;margin:0 0 24px">
-                                                                    Hai, {{ $user->full_name}},
+                                                                    Hai, {{ $user->full_name}} !
                                                                 <p
                                                                     style="font-family:Outfit,-apple-system,BlinkMacSystemFont,San Francisco,Segoe UI,Roboto,Helvetica Neue,Arial,sans-serif;margin:0 0 24px">
                                                                     Kami menerima permintaan untuk mengatur ulang kata

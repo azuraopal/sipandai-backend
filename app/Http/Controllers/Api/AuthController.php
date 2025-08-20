@@ -41,7 +41,7 @@ class AuthController extends Controller
         ]));
 
         try {
-            Mail::to($user->email)->send(new EmailVerificationMail($code));
+            Mail::to($user->email)->send(new EmailVerificationMail($user, $code));
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -120,7 +120,7 @@ class AuthController extends Controller
         $user->save();
 
         try {
-            Mail::to($user->email)->send(new EmailVerificationMail($code));
+            Mail::to($user->email)->send(new EmailVerificationMail($user, $code ));
         } catch (\Exception $e) {
             return response()->json(['message' => 'Gagal mengirim ulang email verifikasi.'], 500);
         }
@@ -220,6 +220,8 @@ class AuthController extends Controller
             ], 422);
         }
 
+        $user = User::Where('email', $request->email)->first();
+
         $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
         DB::table('password_reset_tokens')->updateOrInsert(
@@ -228,7 +230,7 @@ class AuthController extends Controller
         );
 
         try {
-            Mail::to($request->email)->send(new ForgotPasswordMail($code));
+            Mail::to($user->email)->send(new ForgotPasswordMail($user, $code));
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

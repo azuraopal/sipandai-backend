@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -12,8 +13,10 @@ class EmailVerificationMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public string $code)
-    {
+    public function __construct(
+        public User $user,
+        public string $code,
+    ) {
 
     }
 
