@@ -18,48 +18,45 @@ class GoogleAuthController extends Controller
         return Socialite::driver('google')->redirect();
     }
 
-    public function callback()
+    public function callback(Request $request)
     {
         try {
             $googleUser = Socialite::driver('google')->stateless()->user();
+            $registrasionDetails = $request->session()->pull('registrasion_details', []);
 
-            $user = User::where('google_id', $googleUser->getId())->first();
-
-            if(!$user) {
-                $user = User::where('email', $googleUser->getEmail())->first();
-
-                if($user) {
-                    $user->update(['google_id' => $googleUser->getId()]);
-                }
-            }
-
-            if(!$user) {
-                $user = User::create([
-                    'google_id' => $googleUser->getId(),
-                    'full_name' => $googleUser->getName(),
+            $user = User::updateOrCreate(
+                [
                     'email' => $googleUser->getEmail(),
-                    'avatar' => $googleUser->getAvatar(),
+                ],
+                [
+                    'full_name' => $googleUser->getName(),
+                    'google_id' => $googleUser->getId(),
+                    'profile_picture_url' => $googleUser->getAvatar(),
                     'password' => Hash::make(Str::random(24)),
-                ]);
-            }
+                    'email_verified_at' => now(),
+                    'opd_id' => $registrasionDetails['opd_id'] ?? null,
+                    'district_id' => $registrasionDetails['district_id'] ?? null,
+                ]
+            );
 
-            $token = $user->createToken('auth_token')->plainTextToken;
+            $freshUser = User::find($user->id);
+
+            $token = $freshUser->createToken('GoogleAuthToken')->plainTextToken;
 
             return response()->json([
                 'success' => true,
-                'message' => 'Authentication successfully',
+                'message' => 'Authentication successful',
                 'data' => [
-                    'user' => $user,
+                    'user' => $freshUser,
                     'token' => $token,
                 ],
                 'errors' => null,
-            ], 200);
+            ]);
 
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Authentication failed',
-                'data' => null,
                 'errors' => $e->getMessage(),
             ], 401);
         }
