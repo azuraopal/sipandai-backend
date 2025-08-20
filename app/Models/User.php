@@ -29,6 +29,8 @@ class User extends Authenticatable
         'profile_picture_url',
         'district_id',
         'opd_id',
+        'verification_code',
+        'verification_code_expires_at',
     ];
 
     public function opd()
