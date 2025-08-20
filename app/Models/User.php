@@ -24,18 +24,15 @@ class User extends Authenticatable
         'full_name',
         'email',
         'password',
-        'google_id',
         'avatar',
         'role',
         'profile_picture_url',
         'district_id',
         'opd_id',
-        'email_verified_at',
-        'verification_code',
-        'verification_code_expires_at',
     ];
 
-    public function opd() {
+    public function opd()
+    {
         return $this->belongsTo(Opd::class, 'opd_id', 'id');
     }
 
@@ -47,6 +44,10 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'email_verified_at',
+        'verification_code',
+        'verification_code_expires_at',
+        'google_id',
     ];
 
     /**
