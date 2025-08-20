@@ -11,9 +11,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Validator;
+use Psr\Http\Message\ResponseInterface;
 
 class AuthController extends Controller
 {
@@ -33,26 +35,38 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-
-        $user = User::create(array_merge($validator->validated(), [
-            'verification_code' => $code,
-            'verification_code_expires_at' => now()->addMinutes(5),
-        ]));
-
         try {
+            DB::beginTransaction();
+
+            do {
+                $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            } while (User::where('verification_code', $code)->exists());
+
+
+            $user = User::create(array_merge($validator->validated(), [
+                'verification_code' => $code,
+                'verification_code_expires_at' => now()->addMinutes(5),
+            ]));
+
             Mail::to($user->email)->send(new EmailVerificationMail($user, $code));
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Registrasi berhasil. Silahkan cek email Anda untuk kode verifikasi.',
+            ]);
         } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            Log::error('Registration Gagal: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Registrasi berhasil, namun gagal mengirim email verifikasi.'
+                'message' => 'Registrasi gagal. Silakan coba lagi nanti.'
             ], 500);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Registrasi berhasil. Silahkan cek email Anda untuk kode verifikasi.'
-        ]);
     }
 
     public function verifyEmail(Request $request)
@@ -120,7 +134,7 @@ class AuthController extends Controller
         $user->save();
 
         try {
-            Mail::to($user->email)->send(new EmailVerificationMail($user, $code ));
+            Mail::to($user->email)->send(new EmailVerificationMail($user, $code));
         } catch (\Exception $e) {
             return response()->json(['message' => 'Gagal mengirim ulang email verifikasi.'], 500);
         }
