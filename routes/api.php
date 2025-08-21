@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DistrictController;
 use App\Http\Controllers\Api\GoogleAuthController;
 use App\Http\Controllers\Api\OpdController;
+use App\Http\Controllers\Api\ReportTypeController;
 use App\Http\Controllers\Api\VillageController;
 use Illuminate\Support\Facades\Route;
 
@@ -48,5 +49,13 @@ Route::prefix('v1')->group(function () {
             Route::delete('/{id}', [OpdController::class, 'delete']);
         });
 
+        Route::prefix('/report')->group(function () {
+
+            Route::prefix('/type')->group(function () {
+                Route::post('/', [ReportTypeController::class, 'store']);
+                Route::put('/{id}', [ReportTypeController::class, 'update']);
+                Route::delete('/{id}', [ReportTypeController::class, 'destroy']);
+            });
+        });
     });
 });
