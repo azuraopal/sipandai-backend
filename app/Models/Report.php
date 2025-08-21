@@ -2,16 +2,23 @@
 
 namespace App\Models;
 
+use App\Enums\ReportStatus;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class Report extends Model
 {
     use HasFactory, HasUuids, SoftDeletes;
+
+    protected $with = [
+        'user',
+        'attachments',
+    ];
 
     protected $fillable = [
         'report_code',
@@ -70,5 +77,23 @@ class Report extends Model
     public function assignments(): HasMany
     {
         return $this->hasMany(ReportAssignment::class);
+    }
+
+    /**
+     * @param  mixed  $value
+     * @return array|null
+     */
+    public function getCoordinatesAttribute($value): ?array
+    {
+        $result = DB::select("SELECT ST_Y(coordinates) as latitude, ST_X(coordinates) as longitude FROM reports WHERE id = ?", [$this->id]);
+
+        if (empty($result)) {
+            return null;
+        }
+
+        return [
+            'latitude' => $result[0]->latitude,
+            'longitude' => $result[0]->longitude,
+        ];
     }
 }
