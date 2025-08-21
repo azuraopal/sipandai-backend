@@ -14,7 +14,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 
@@ -69,7 +71,7 @@ class AuthController extends Controller
                 'errors' => null,
             ], 201);
         } catch (Exception $e) {
-            Log::error('Registration failed: '.$e->getMessage());
+            Log::error('Registration failed: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Registrasi gagal. Silakan coba lagi nanti.',
@@ -96,7 +98,7 @@ class AuthController extends Controller
         }
 
         $email = mb_strtolower(trim($request->input('email')));
-        $rateKey = 'login:'.sha1($request->ip().'|'.$email);
+        $rateKey = 'login:' . sha1($request->ip() . '|' . $email);
 
         if (RateLimiter::tooManyAttempts($rateKey, 5)) {
             throw ValidationException::withMessages(['throttle' => ['Too many attempts. Please try again later.']])->status(429);
@@ -115,7 +117,7 @@ class AuthController extends Controller
 
         RateLimiter::clear($rateKey);
 
-        $token = $user->createToken('web:'.substr((string) $request->userAgent(), 0, 40), ['*'])->plainTextToken;
+        $token = $user->createToken('web:' . substr((string) $request->userAgent(), 0, 40), ['*'])->plainTextToken;
 
         return response()->json([
             'success' => true,
@@ -155,6 +157,54 @@ class AuthController extends Controller
         ]);
     }
 
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        $validator = Validator::make($request->all(), [
+            'full_name' => 'sometimes|required|string|max:255',
+            'email' => ['sometimes', 'required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'profile_picture_url' => 'sometimes|required|image|mimes:png,jpg,jpeg|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'data' => null,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $validatedData = $validator->validated();
+
+        if ($request->hasFile('profile_picture_url')) {
+            if ($user->profile_picture_url) {
+                $oldPath = str_replace('storage/', '', parse_url($user->profile_picture_url, PHP_URL_PATH));
+                Storage::disk('public')->delete($oldPath);
+            }
+            $path = $request->file('profile_picture_url')->store('profile_pictures', 'public');
+            $validatedData['profile_picture_url'] = Storage::url($path);
+        }
+
+        $user->update($validatedData);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profil berhasil diperbarui.',
+            'data' => [
+                'user' => [
+                    'id' => $user->id,
+                    'full_name' => $user->full_name,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                    'profile_picture_url' => $user->profile_picture_url,
+                ],
+            ],
+            'errors' => null,
+        ]);
+    }
+
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()?->delete();
@@ -184,7 +234,7 @@ class AuthController extends Controller
         }
 
         $email = mb_strtolower(trim($request->input('email')));
-        $rateKey = 'verify:'.sha1($request->ip().'|'.$email);
+        $rateKey = 'verify:' . sha1($request->ip() . '|' . $email);
 
         if (RateLimiter::tooManyAttempts($rateKey, 5)) {
             throw ValidationException::withMessages(['throttle' => ['Too many attempts. Please try again later.']])->status(429);
@@ -239,7 +289,7 @@ class AuthController extends Controller
 
         RateLimiter::clear($rateKey);
 
-        $token = $user->createToken('web:'.substr((string) $request->userAgent(), 0, 40), ['*'])->plainTextToken;
+        $token = $user->createToken('web:' . substr((string) $request->userAgent(), 0, 40), ['*'])->plainTextToken;
 
         return response()->json([
             'success' => true,
@@ -273,7 +323,7 @@ class AuthController extends Controller
         }
 
         $email = mb_strtolower(trim($request->input('email')));
-        $rateKey = 'resend:'.sha1($request->ip().'|'.$email);
+        $rateKey = 'resend:' . sha1($request->ip() . '|' . $email);
 
         if (RateLimiter::tooManyAttempts($rateKey, 3)) {
             throw ValidationException::withMessages(['throttle' => ['Too many attempts. Please try again later.']])->status(429);
@@ -322,7 +372,7 @@ class AuthController extends Controller
                 'errors' => null,
             ]);
         } catch (Exception $e) {
-            Log::warning('Resend verification failed: '.$e->getMessage());
+            Log::warning('Resend verification failed: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mengirim ulang email verifikasi.',
@@ -389,7 +439,7 @@ class AuthController extends Controller
         }
 
         $email = mb_strtolower(trim($request->input('email')));
-        $rateKey = 'forgot:'.sha1($request->ip().'|'.$email);
+        $rateKey = 'forgot:' . sha1($request->ip() . '|' . $email);
 
         if (RateLimiter::tooManyAttempts($rateKey, 5)) {
             throw ValidationException::withMessages(['throttle' => ['Too many attempts. Please try again later.']])->status(429);
@@ -412,7 +462,7 @@ class AuthController extends Controller
             try {
                 Mail::to($user->email)->send((new ForgotPasswordMail($user, $plainCode)));
             } catch (Exception $e) {
-                Log::warning('ForgotPassword mail failed: '.$e->getMessage());
+                Log::warning('ForgotPassword mail failed: ' . $e->getMessage());
             }
         }
 
@@ -432,7 +482,9 @@ class AuthController extends Controller
             'email' => ['required', 'string', 'email'],
             'code' => ['required', 'string', 'size:6'],
             'password' => [
-                'required', 'confirmed', Password::min(8)->letters()->mixedCase()->numbers()->symbols()->uncompromised()
+                'required',
+                'confirmed',
+                Password::min(8)->letters()->mixedCase()->numbers()->symbols()->uncompromised()
             ],
         ]);
 
