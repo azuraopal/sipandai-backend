@@ -14,37 +14,71 @@ use Validator;
 
 class ReportController extends Controller
 {
-
     public function index(Request $request)
     {
-        $perPage = $request->query('per_page', 10);
-        $search = $request->query('search', null);
-        $status = $request->query('status', null);
+        $perPage = $request->query('per_page', 15);
+        $search = $request->query('search');
+        $status = $request->query('status');
 
         $reports = Report::query()
             ->with([
-                'user:id,full_name,role',
+                'user:id,full_name,profile_picture_url,role',
                 'reportType:id,name',
+                'reportCategory:id,name',
                 'district:code,name',
                 'village:code,name',
                 'attachments:report_id,file_url,file_type,purpose',
+                'statusHistories.user:id,full_name'
             ])
-
             ->when($search, function ($query, $search) {
                 return $query->where('title', 'LIKE', "%{$search}%");
             })
             ->when($status, function ($query, $status) {
                 return $query->where('current_status', $status);
             })
-
             ->latest()
             ->paginate($perPage);
+
+        $mappedItems = $reports->getCollection()->map(function ($report) {
+            return [
+                'id' => $report->id,
+                'report_code' => $report->report_code,
+                'title' => $report->title,
+                'description' => $report->description,
+                'address_detail' => $report->address_detail,
+                'phone_number' => $report->phone_number,
+                'coordinates' => $report->coordinates,
+                'current_status' => optional($report->current_status)->label(),
+                'created_at' => $report->created_at,
+                'report_type' => optional($report->reportType)->name,
+                'report_category' => optional($report->reportCategory)->name,
+                'district' => optional($report->district)->name,
+                'village' => optional($report->village)->name,
+                'attachments' => $report->attachments->map(function ($attachment) {
+                    return [
+                        'file_url' => $attachment->file_url,
+                        'file_type' => $attachment->file_type,
+                        'purpose' => optional($attachment->purpose)->label(),
+                    ];
+                }),
+                'status_histories' => $report->statusHistories->map(function ($history) {
+                    return [
+                        'status' => optional($history->status)->label(),
+                        'notes' => $history->notes,
+                        'created_at' => $history->created_at,
+                        'user' => [
+                            'full_name' => optional($history->user)->full_name,
+                        ],
+                    ];
+                }),
+            ];
+        });
 
         return response()->json([
             'success' => true,
             'message' => 'Daftar laporan berhasil diambil.',
             'data' => [
-                'items' => $reports->items(),
+                'items' => $mappedItems,
                 'meta' => [
                     'current_page' => $reports->currentPage(),
                     'last_page' => $reports->lastPage(),
@@ -53,7 +87,7 @@ class ReportController extends Controller
                 ]
             ],
             'errors' => null
-        ], 200);
+        ]);
     }
 
     public function store(Request $request)
@@ -202,6 +236,5 @@ class ReportController extends Controller
             'data' => $mappedData,
             'errors' => null
         ]);
-
     }
 }
