@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\DistrictController;
 use App\Http\Controllers\Api\GoogleAuthController;
 use App\Http\Controllers\Api\OpdController;
 use App\Http\Controllers\Api\ReportCategoryController;
+use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\ReportTypeController;
 use App\Http\Controllers\Api\VillageController;
 use Illuminate\Support\Facades\Route;
@@ -51,6 +52,8 @@ Route::prefix('v1')->group(function () {
         });
 
         Route::prefix('/report')->group(function () {
+            Route::post('/', [ReportController::class, 'store']);
+            Route::get('/', [ReportController::class, 'index']);
 
             Route::prefix('/type')->group(function () {
                 Route::post('/', [ReportTypeController::class, 'store']);
