@@ -150,19 +150,56 @@ class ReportController extends Controller
     public function show(Report $id)
     {
         $id->load([
-            'user:id,full_name,profile_picture_url,role',
+            'user',
             'reportType',
             'reportCategory',
             'district',
             'village',
             'attachments',
-            'statusHistories'
+            'statusHistories.user'
         ]);
+
+        $mappedData = [
+            'id'               => $id->id,
+            'report_code'      => $id->report_code,
+            'title'            => $id->title,
+            'description'      => $id->description,
+            'address_detail'   => $id->address_detail,
+            'phone_number'     => $id->phone_number,
+            'coordinates'      => $id->coordinates,
+            'current_status'   => $id->current_status,
+            'created_at'       => $id->created_at,
+            'report_type'=> $id->reportType->name,
+            'report_category' => $id->reportCategory->name,
+            'district' => $id->district->name,
+            'village' => $id->village->name,
+            'attachments' => $id->attachments->map(function ($attachment) {
+                return [
+                    'id' => $attachment->id,
+                    'file_url' => $attachment->file_url,
+                    'file_type' => $attachment->file_type,
+                    'purpose' => $attachment->purpose->label(),
+                ];
+            }),
+            'status_histories' => $id->statusHistories->map(function ($history) {
+                return [
+                    'id' => $history->id,
+                    'status' => $history->status->label(),
+                    'description' => $history->description,
+                    'created_at' => $history->created_at->format('Y-m-d H:i:s'),
+                    'user' => [
+                        'id' => $history->user->id,
+                        'full_name' => $history->user->full_name,
+                        'role' => $history->user->role,
+                    ],
+                ];
+            }),
+        ];
 
         return response()->json([
             'success' => true,
             'message' => 'Detail laporan berhasil diambil.',
-            'data' => $id,
+            'data' => $mappedData,
             'errors' => null
         ]);
 

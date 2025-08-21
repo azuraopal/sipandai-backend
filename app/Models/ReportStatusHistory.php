@@ -27,6 +27,7 @@ class ReportStatusHistory extends Model
 
     protected $casts = [
         'status' => ReportStatus::class,
+        'created_at' => 'datetime',
     ];
 
     protected function report(): BelongsTo 
