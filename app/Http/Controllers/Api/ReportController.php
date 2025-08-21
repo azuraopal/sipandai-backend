@@ -23,7 +23,7 @@ class ReportController extends Controller
 
         $reports = Report::query()
             ->with([
-                'user:id,full_name',
+                'user:id,full_name,role',
                 'reportType:id,name',
                 'district:code,name',
                 'village:code,name',
