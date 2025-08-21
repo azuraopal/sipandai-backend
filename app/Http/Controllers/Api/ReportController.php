@@ -16,7 +16,7 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
-        $perPage = $request->query('per_page', 15);
+        $perPage = $request->query('per_page', 10);
         $search = $request->query('search');
         $status = $request->query('status');
 
