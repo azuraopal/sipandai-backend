@@ -66,4 +66,9 @@ class Report extends Model
     {
         return $this->hasMany(ReportAttachment::class);
     }
+
+    public function assignments(): HasMany
+    {
+        return $this->hasMany(ReportAssignment::class);
+    }
 }

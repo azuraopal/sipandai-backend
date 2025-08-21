@@ -89,4 +89,14 @@ class User extends Authenticatable
             set: fn($value) => mb_strtolower(trim($value))
         );
     }
+
+    public function assignedTask() 
+    {
+        return $this->hasMany(ReportAssignment::class, 'assigned_to_user_id');
+    }
+
+    public function givenTask()
+    {
+        return $this->hasMany(ReportAssignment::class, 'assigned_by_user_id');
+    }
 }

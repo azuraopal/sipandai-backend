@@ -2,40 +2,38 @@
 
 namespace App\Models;
 
-use App\Enums\ReportStatus;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class ReportStatusHistory extends Model
+class ReportAssignment extends Model
 {
     use HasFactory, HasUuids, SoftDeletes;
 
     public $timestamps = false;
     const CREATED_AT = 'created_at';
 
-    protected $table = 'report_status_histories';
-
     protected $fillable = [
         'report_id',
-        'user_id',
-        'status',
-        'note'
+        'assigned_to_user_id',
+        'assigned_by_user_id',
     ];
 
-    protected $casts = [
-        'status' => ReportStatus::class,
-    ];
-
-    protected function report(): BelongsTo 
+    public function report(): BelongsTo
     {
         return $this->belongsTo(Report::class);
     }
 
-    public function user(): BelongsTo 
+    public function assignedTo(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'assigned_to_user_id');
     }
+
+    public function assignedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_by_user_id');
+    }
+
 }
