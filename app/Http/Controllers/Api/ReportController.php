@@ -111,6 +111,12 @@ class ReportController extends Controller
                 'current_status' => ReportStatus::PENDING_VERIFICATION->value,
             ]);
 
+            $report->statusHistories()->create([
+                'user_id' => $request->user()->id,
+                'status' => $report->current_status,
+                'description' => 'Laporan dibuat oleh pengguna.',
+            ]);
+
             if ($request->hasFile('attachments')) {
                 foreach ($request->file('attachments') as $file) {
                     $path = $file->store('report_attachments', 'public');
@@ -127,7 +133,7 @@ class ReportController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Laporan berhasil dibuat.',
-                'data' => $report->load('attachments'),
+                'data' => $report->load('attachments', 'statusHistories'),
                 'errors' => null
             ], 201);
 
@@ -141,8 +147,24 @@ class ReportController extends Controller
         }
     }
 
-    public function show(Report $report)
+    public function show(Report $id)
     {
-        //
+        $id->load([
+            'user:id,full_name,profile_picture_url,role',
+            'reportType',
+            'reportCategory',
+            'district',
+            'village',
+            'attachments',
+            'statusHistories'
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Detail laporan berhasil diambil.',
+            'data' => $id,
+            'errors' => null
+        ]);
+
     }
 }
