@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('report_assignments', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('report_id')->constrained('reports')->onDelete('cascade');
-            $table->foreignUuid('assigned_to_id')->constrained('users')->onDelete('cascade');
-            $table->foreignUuid('assigned_by_id')->constrained('users')->onDelete('cascade');
+            $table->foreignUuid('assigned_to_user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignUuid('assigned_by_user_id')->constrained('users')->onDelete('cascade');
             $table->timestamp('created_at')->useCurrent();
             $table->softDeletes();
         });
