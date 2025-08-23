@@ -33,8 +33,7 @@ class ReportAssignmentController extends Controller
         ]);
 
         $assignment->load([
-            'report:id,title,user_id',
-            'report.user:id,full_name,role',
+            'report:id,title',
             'assignedTo:id,full_name,role',
             'assignedBy:id,full_name,role'
         ]);
