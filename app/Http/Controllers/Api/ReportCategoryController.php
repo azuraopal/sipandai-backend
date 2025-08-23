@@ -9,7 +9,6 @@ use Validator;
 
 class ReportCategoryController extends Controller
 {
-
     public function store(Request $request)
     {
         $this->authorize('create', ReportCategory::class);

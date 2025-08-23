@@ -11,6 +11,16 @@ use Illuminate\Validation\Rule;
 
 class ReportTypeController extends Controller
 {
+    public function index()
+    {
+        $types = ReportType::with('categories')->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'List report types with categories',
+            'data'    => $types
+        ]);
+    }
 
     public function store(Request $request)
     {

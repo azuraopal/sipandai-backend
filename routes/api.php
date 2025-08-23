@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\VillageController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
+    Route::get('/report/type', [ReportTypeController::class, 'index']);
     Route::prefix('/auth')->group(function () {
         Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
         Route::post('/register', [AuthController::class, 'register']);
