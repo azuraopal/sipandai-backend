@@ -335,7 +335,7 @@ class AuthController extends Controller
         if (!$user) {
             return response()->json([
                 'success' => true,
-                'message' => 'Jika email terdaftar, kode verifikasi baru telah dikirim.',
+                'message' => 'kode verifikasi baru telah dikirim.',
                 'data' => null,
                 'errors' => null,
             ]);
