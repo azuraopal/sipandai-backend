@@ -22,7 +22,7 @@ class ReportStatusHistory extends Model
         'report_id',
         'user_id',
         'status',
-        'note'
+        'notes'
     ];
 
     protected $casts = [
@@ -30,7 +30,7 @@ class ReportStatusHistory extends Model
         'created_at' => 'datetime',
     ];
 
-    protected function report(): BelongsTo 
+    public function report(): BelongsTo 
     {
         return $this->belongsTo(Report::class);
     }

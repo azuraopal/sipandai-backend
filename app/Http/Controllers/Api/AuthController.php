@@ -142,7 +142,7 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'OK',
+            'message' => 'Data Profil Behasil Diambil',
             'data' => [
                 'user' => [
                     'id' => $user->id,
@@ -481,11 +481,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'email' => ['required', 'string', 'email'],
             'code' => ['required', 'string', 'size:6'],
-            'password' => [
-                'required',
-                'confirmed',
-                Password::min(8)->letters()->mixedCase()->numbers()->symbols()->uncompromised()
-            ],
+            'password' => ['required', 'confirmed', Password::min(8)],
         ]);
 
         if ($validator->fails()) {

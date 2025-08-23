@@ -118,6 +118,9 @@ class ReportController extends Controller
         try {
             DB::beginTransaction();
 
+            $validated = $validator->validated();
+            $user = $request->user();
+
             $lastReport = Report::withTrashed()->orderBy('created_at', 'desc')->first();
             $nextId = 1;
             if ($lastReport) {
@@ -146,7 +149,7 @@ class ReportController extends Controller
             ]);
 
             $report->statusHistories()->create([
-                'user_id' => $request->user()->id,
+                'user_id' => $user->id,
                 'status' => $report->current_status,
                 'description' => 'Laporan dibuat oleh pengguna.',
             ]);
