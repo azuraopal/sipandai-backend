@@ -142,7 +142,7 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'OK',
+            'message' => 'Data Profil Behasil Diambil',
             'data' => [
                 'user' => [
                     'id' => $user->id,
