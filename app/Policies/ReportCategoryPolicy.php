@@ -17,12 +17,12 @@ class ReportCategoryPolicy
 
     public function create(User $user): bool
     {
-        return false;
+        return $user->role === UserRole::CITY_ADMIN;
     }
 
     public function update(User $user, ReportCategory $reportCategory): bool
     {
-        return false;
+        return $user->role === UserRole::CITY_ADMIN;
     }
 
     public function destroy(User $user, ReportCategory $reportCategory): bool
