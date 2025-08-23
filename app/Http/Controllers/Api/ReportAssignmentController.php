@@ -7,11 +7,14 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
+#[ReportAssignment(ReportAssignment::class)]
 class ReportAssignmentController extends Controller
 {
 
     public function store(Request $request)
     {
+        $this->authorize('create', ReportAssignment::class);
+        
         $validator = Validator::make($request->all(), [
             'report_id' => 'required|uuid|exists:reports,id',
             'assigned_to_user_id' => 'required|uuid|exists:users,id',

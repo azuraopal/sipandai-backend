@@ -43,7 +43,7 @@ class OpdController extends Controller
 
     public function store(Request $request)
     {
-        // $this->authorize('create', Opd::class);
+        $this->authorize('create', Opd::class);
         try {
             $request->validate([
                 'name' => 'required|string|max:100|unique:opds,name',

@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\UserRole;
 use App\Models\ReportAssignment;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
@@ -29,7 +30,7 @@ class ReportAssignmentPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return $user->role === UserRole::CITY_ADMIN;
     }
 
     /**
