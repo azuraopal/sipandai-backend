@@ -6,6 +6,7 @@ use App\Models\Opd;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use App\Http\Controllers\Controller;
+use Validator;
 
 #[OpdPolicy(Opd::class)]
 class OpdController extends Controller
@@ -43,13 +44,36 @@ class OpdController extends Controller
 
     public function store(Request $request)
     {
-        $this->authorize('create', Opd::class);
-        try {
-            $request->validate([
-                'name' => 'required|string|max:100|unique:opds,name',
-            ]);
+        // $this->authorize('create', Opd::class);
 
-            $opd = Opd::create($request->all());
+        $user = $request->user();
+
+        if ($user->opd_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal membuat OPD. Akun anda sudah terhubung ke OPD lain.',
+                'data' => null,
+                'errors' => ['opd_id' => 'Satu pengguna hanya bisa terhubung dengan satu OPD.']
+            ], 409);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:100|unique:opds,name',
+        ]);
+
+        if( $validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi Gagal.',
+                'data' => null,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+
+            $opd = Opd::create($request->only('name'));
+            $user->update(['opd_id' => $opd->id]);
 
             return response()->json([
                 'success' => true,
