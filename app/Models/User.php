@@ -22,6 +22,7 @@ class User extends Authenticatable
         'email',
         'password',
         'profile_picture_url',
+        'phone_number',
         'district_id',
         'opd_id',
         'google_id',
