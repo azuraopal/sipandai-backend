@@ -238,7 +238,6 @@ class ReportController extends Controller
             $reportCode = 'RE-' . str_pad($nextId, 5, '0', STR_PAD_LEFT);
 
             $validated = $validator->validated();
-            $user = $request->user();
 
             $report = Report::create([
                 'report_code' => $reportCode,
