@@ -209,6 +209,8 @@ class ReportController extends Controller
         $user = Auth::guard('sanctum')->user();
 
         if (!$user) {
+            $this->authorize('create', Report::class);
+        } else {
             $phoneNumber = $request->phone_number;
             $tokenExists = DB::table('submit_report_tokens')
                 ->where('phone_number', $phoneNumber)
@@ -221,8 +223,6 @@ class ReportController extends Controller
                     'requires_otp' => true,
                 ], 401);
             }
-        } else {
-            $this->authorize('create', Report::class);
         }
 
         try {
@@ -274,10 +274,12 @@ class ReportController extends Controller
 
             DB::commit();
 
+            $finalReport = Report::with(['attachments', 'statusHistories'])->findOrFail($report->id);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Laporan berhasil dibuat.',
-                'data' => $report->load('attachments', 'statusHistories'),
+                'data' => $finalReport,
                 'errors' => null
             ], 201);
 
