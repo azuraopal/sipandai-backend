@@ -27,7 +27,7 @@ class ReportController extends Controller
 
         $reports = Report::query()
             ->with([
-                'user:id,full_name,profile_picture_url,role',
+                'user:id,full_name,email,profile_picture_url,phone_number',
                 'reportType:id,name',
                 'reportCategory:id,name',
                 'district:code,name',
@@ -59,11 +59,18 @@ class ReportController extends Controller
                 'report_category' => optional($report->reportCategory)->name,
                 'district' => optional($report->district)->name,
                 'village' => optional($report->village)->name,
+                'user' => [
+                    'id' => $report->user->id,
+                    'full_name' => $report->user->full_name,
+                    'email' => $report->user->email,
+                    'profile_picture_url' => $report->user->profile_picture_url,
+                    'phone_number' => $report->user->phone_number,
+                ],
                 'attachments' => $report->attachments->map(function ($attachment) {
                     return [
                         'file_url' => $attachment->file_url,
                         'file_type' => $attachment->file_type,
-                        'purpose' => optional($attachment->purpose)->label(),
+                        'purpose' => $attachment->purpose,
                     ];
                 }),
                 'status_histories' => $report->statusHistories->map(function ($history) {
@@ -194,8 +201,8 @@ class ReportController extends Controller
             'phone_number' => 'required|string|max:15',
             'latitude' => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
-            'attachments' => 'sometimes|array',
-            'attachments.*' => 'sometimes|image|mimes:jpeg,png,jpg|max:2048',
+            'attachments' => 'required|min:1',
+            'attachments.*' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         if ($validator->fails()) {
@@ -261,8 +268,15 @@ class ReportController extends Controller
             ]);
 
             if ($request->hasFile('attachments')) {
-                foreach ($request->file('attachments') as $file) {
+                $files = $request->file('attachments');
+
+                if (!is_array($files)) {
+                    $files = [$files];
+                }
+
+                foreach ($files as $file) {
                     $path = $file->store('report_attachments', 'public');
+
                     $report->attachments()->create([
                         'file_url' => Storage::url($path),
                         'file_type' => $file->getClientMimeType(),
@@ -273,7 +287,10 @@ class ReportController extends Controller
 
             DB::commit();
 
-            $finalReport = Report::with(['attachments', 'statusHistories'])->findOrFail($report->id);
+            $finalReport = $report->load([
+                'attachments',
+                'statusHistories',
+            ]);
 
             return response()->json([
                 'success' => true,
@@ -318,6 +335,13 @@ class ReportController extends Controller
             'report_category' => $id->reportCategory->name,
             'district' => $id->district->name,
             'village' => $id->village->name,
+            'user' => [
+                'id' => $id->user->id,
+                'full_name' => $id->user->full_name,
+                'email' => $id->user->email,
+                'profile_picture_url' => $id->user->profile_picture_url,
+                'phone_number' => $id->user->phone_number,
+            ],
             'attachments' => $id->attachments->map(function ($attachment) {
                 return [
                     'id' => $attachment->id,
