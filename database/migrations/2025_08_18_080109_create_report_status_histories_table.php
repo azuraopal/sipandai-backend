@@ -14,7 +14,7 @@ return new class extends Migration {
         Schema::create('report_status_histories', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('report_id')->constrained('reports')->onDelete('cascade');
-            $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignUuid('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->string('status')->default(ReportStatus::PENDING_VERIFICATION->value);
             $table->text('notes')->nullable();
             $table->timestamp('created_at')->useCurrent();

@@ -12,7 +12,13 @@ use App\Http\Controllers\Api\VillageController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
-    Route::get('/report/type', [ReportTypeController::class, 'index']);
+    Route::prefix('/report')->group(function () {
+        Route::post('/', [ReportController::class, 'store']);
+        Route::get('/type', [ReportTypeController::class, 'index']);
+        Route::post('/request-otp', [ReportController::class, 'requestOtp']);
+        Route::post('/verify-otp', [ReportController::class, 'verifyOtp']);
+    });
+
     Route::prefix('/auth')->group(function () {
         Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
         Route::post('/register', [AuthController::class, 'register']);
@@ -54,7 +60,6 @@ Route::prefix('v1')->group(function () {
         });
 
         Route::prefix('/report')->group(function () {
-            Route::post('/', [ReportController::class, 'store']);
             Route::get('/', [ReportController::class, 'index']);
             Route::get('/{id}', [ReportController::class, 'show']);
 

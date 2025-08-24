@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('reports', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('report_code', 8)->unique();
-            $table->foreignUuid('user_id')->constrained('users');
+            $table->foreignUuid('user_id')->nullable()->constrained('users');
             $table->foreignId('type_id')->constrained('report_types');
             $table->foreignId('category_id')->constrained('report_categories');
             $table->string('district_id', 2);

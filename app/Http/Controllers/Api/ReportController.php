@@ -6,8 +6,13 @@ use App\Enums\AttachmentPurpose;
 use App\Enums\ReportStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Report;
+use App\Services\WhatsAppService;
+use Carbon\Carbon;
+use Hash;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Str;
 use Validator;
@@ -90,6 +95,92 @@ class ReportController extends Controller
         ]);
     }
 
+    public function requestOtp(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'phone_number' => 'required|string|max:15',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $phoneNumber = $request->phone_number;
+        $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        DB::table('submit_report_tokens')->updateOrInsert([
+            'phone_number' => $phoneNumber,
+            'token_hash' => Hash::make($code),
+            'created_at' => now(),
+        ]);
+
+        try {
+            $whatsappService = new WhatsAppService();
+            $message = "Kode OTP Anda untuk mengirim laporan SIPANDAI Anda adalah: {$code}. Kode ini valid selama 5 menit.";
+
+            $isSend = $whatsappService->sendMessage($request->phone_number, $message);
+
+            if (!$isSend) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal mengirim OTP. Silakan coba lagi.',
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error("Gagal mengirim OTP: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat mengirim OTP.',
+                'errors' => $e->getMessage()
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'OTP telah dikirim ke nomor telepon Anda.',
+            'errors' => null
+        ]);
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'phone_number' => 'required|string|max:15',
+            'token' => 'required|string|size:6',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $tokenData = DB::table('submit_report_tokens')
+            ->where('phone_number', $request->phone_number)
+            ->first();
+
+        if (!$tokenData || !Hash::check($request->token, $tokenData->token_hash) || Carbon::parse($tokenData->created_at)->addMinutes(5)->isPast()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kode OTP tidak valid atau telah kedaluwarsa.',
+            ], 422);
+        }
+
+        DB::table('submit_report_tokens')
+            ->where('phone_number', $request->phone_number)
+            ->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Nomor telepon berhasil diverifikasi.',
+        ]);
+    }
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -115,11 +206,27 @@ class ReportController extends Controller
             ], 422);
         }
 
+        $user = Auth::guard('sanctum')->user();
+
+        if (!$user) {
+            $phoneNumber = $request->phone_number;
+            $tokenExists = DB::table('submit_report_tokens')
+                ->where('phone_number', $phoneNumber)
+                ->exists();
+
+            if ($tokenExists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Nomor telepon anda belum teverifikasi. Silakan verifikasi nomor telepon anda terlebih dahulu.',
+                    'requires_otp' => true,
+                ], 401);
+            }
+        } else {
+            $this->authorize('create', Report::class);
+        }
+
         try {
             DB::beginTransaction();
-
-            $validated = $validator->validated();
-            $user = $request->user();
 
             $lastReport = Report::withTrashed()->orderBy('created_at', 'desc')->first();
             $nextId = 1;
@@ -135,7 +242,7 @@ class ReportController extends Controller
 
             $report = Report::create([
                 'report_code' => $reportCode,
-                'user_id' => $user->id,
+                'user_id' => $user?->id,
                 'type_id' => $validated['type_id'],
                 'category_id' => $validated['category_id'],
                 'title' => $validated['title'],
@@ -149,7 +256,7 @@ class ReportController extends Controller
             ]);
 
             $report->statusHistories()->create([
-                'user_id' => $user->id,
+                'user_id' => $user?->id,
                 'status' => $report->current_status,
                 'description' => 'Laporan dibuat oleh pengguna.',
             ]);
