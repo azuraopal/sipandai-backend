@@ -257,7 +257,7 @@ class ReportController extends Controller
             $report->statusHistories()->create([
                 'user_id' => $user?->id,
                 'status' => $report->current_status,
-                'description' => 'Laporan dibuat oleh pengguna.',
+                'notes' => 'Laporan dibuat oleh pengguna.',
             ]);
 
             if ($request->hasFile('attachments')) {
