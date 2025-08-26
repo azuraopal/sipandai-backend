@@ -4,10 +4,10 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DistrictController;
 use App\Http\Controllers\Api\GoogleAuthController;
 use App\Http\Controllers\Api\OpdController;
-use App\Http\Controllers\Api\ReportAssignmentController;
 use App\Http\Controllers\Api\ReportCategoryController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\ReportTypeController;
+use App\Http\Controllers\Api\ReportUserAssignmentController;
 use App\Http\Controllers\Api\VillageController;
 use Illuminate\Support\Facades\Route;
 
@@ -64,7 +64,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/{id}', [ReportController::class, 'show']);
 
             Route::prefix('/assignment')->group(function () {
-                Route::post('/', [ReportAssignmentController::class, 'store']);
+                Route::post('/', [ReportUserAssignmentController::class, 'store']);
+                Route::put('/{id}/end', [ReportUserAssignmentController::class, 'endAssignment']);
             });
 
             Route::prefix('/type')->group(function () {
