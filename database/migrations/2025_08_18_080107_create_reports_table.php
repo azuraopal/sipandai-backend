@@ -28,6 +28,8 @@ return new class extends Migration
             $table->geography('coordinates', 'point');
             $table->string('phone_number', 15);
             $table->string('current_status')->default(ReportStatus::PENDING_VERIFICATION->value);
+            $table->foreignUuid('current_officer_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->foreignUuid('current_opd_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->timestamps();
             $table->softDeletes();
         });
