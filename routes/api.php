@@ -38,18 +38,18 @@ Route::prefix('v1')->group(function () {
             Route::post('/change-password', [AuthController::class, 'changePassword']);
         });
 
-        Route::prefix('/district')->group(function () {
+        Route::prefix('/districts')->group(function () {
             Route::get('/', [DistrictController::class, 'index']);
             Route::post('/', [DistrictController::class, 'store']);
-            Route::get('/{id}', [DistrictController::class, 'show']);
-            Route::put('/{id}', [DistrictController::class, 'update']);
-            Route::delete('/{id}', [DistrictController::class, 'destroy']);
+            Route::get('/{code}', [DistrictController::class, 'show']);
+            Route::put('/{code}', [DistrictController::class, 'update']);
+            Route::delete('/{code}', [DistrictController::class, 'destroy']);
+
+            Route::post('/{code}/villages', [VillageController::class, 'store']);
+            Route::put('/{code}/villages/{village_code}', [VillageController::class, 'update']);
+            Route::delete('/{code}/villages/{village_code}', [VillageController::class, 'destroy']);
         });
 
-        Route::prefix('/village')->group(function () {
-            Route::put('/{id}', [VillageController::class, 'update']);
-            Route::delete('/{id}', [VillageController::class, 'destroy']);
-        });
 
         Route::prefix('/opd')->group(function () {
             Route::get('/', [OpdController::class, 'index']);

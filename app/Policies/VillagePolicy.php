@@ -26,18 +26,27 @@ class VillagePolicy
         return true;
     }
 
-    public function create(User $user): bool
+    public function create(User $user, Village $village): bool
     {
-        return false;
+        return in_array($user->role, [
+            UserRole::CITY_ADMIN,
+            UserRole::DISTRICT_ADMIN
+        ]);
     }
 
     public function update(User $user, Village $village): bool
     {
-        return false;
+        return in_array($user->role, [
+            UserRole::CITY_ADMIN,
+            UserRole::DISTRICT_ADMIN
+        ]);
     }
 
     public function destroy(User $user, Village $village): bool
     {
-        return false;
+        return in_array($user->role, [
+            UserRole::CITY_ADMIN,
+            UserRole::DISTRICT_ADMIN
+        ]);
     }
 }
