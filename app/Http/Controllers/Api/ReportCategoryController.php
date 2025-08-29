@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\ReportType;
 use App\Models\ReportCategory;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Validator;
+use Illuminate\Support\Facades\Validator;
 
 class ReportCategoryController extends Controller
 {
-    public function store(Request $request)
+    public function store(Request $request, $id)
     {
+        $type = ReportType::findOrFail($id);
         $this->authorize('create', ReportCategory::class);
 
         $validator = Validator::make($request->all(), [
-            'type_id' => 'required|integer|exists:report_types,id',
             'name' => 'required|string|max:100|unique:report_categories,name',
         ]);
 
@@ -22,59 +23,69 @@ class ReportCategoryController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Validasi gagal.',
-                'data' => null,
                 'errors' => $validator->errors()
             ], 422);
         }
 
-        $reportCategory = ReportCategory::create($validator->validated());
+        $category = $type->categories()->create($validator->validated());
 
         return response()->json([
             'success' => true,
             'message' => 'Kategori laporan berhasil dibuat.',
-            'data' => $reportCategory->load('reportType'),
-            'errors' => null
+            'data' => $category,
         ], 201);
     }
 
-    public function update(Request $request, ReportCategory $id)
+    public function update(Request $request, $id, ReportCategory $category)
     {
-        $this->authorize('update', $id);
+        $type = ReportType::findOrFail($id);
+        $this->authorize('update', $category);
+
+        if ($category->type_id !== $type->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kategori tidak termasuk dalam jenis laporan ini.',
+            ], 404);
+        }
 
         $validator = Validator::make($request->all(), [
-            'type_id' => 'sometimes|required|integer|exists:report_types,id',
-            'name' => 'sometimes|required|string|max:100|unique:report_categories,name',
+            'name' => 'sometimes|required|string|max:100|unique:report_categories,name,' . $category->id,
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Validasi gagal.',
-                'data' => null,
                 'errors' => $validator->errors()
             ], 422);
         }
 
-        $id->update($validator->validated());
+        $category->update($validator->validated());
 
         return response()->json([
             'success' => true,
             'message' => 'Kategori laporan berhasil diperbarui.',
-            'data' => $id->fresh('reportType'),
-            'errors' => null
+            'data' => $category,
         ]);
     }
 
-    public function destroy(ReportCategory $id)
+    public function destroy($id, ReportCategory $category)
     {
-        $this->authorize('destroy', $id);
+        $type = ReportType::findOrFail($id);
+        $this->authorize('delete', $category);
 
-        $id->delete();
+        if ($category->type_id !== $type->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kategori tidak termasuk dalam jenis laporan ini.',
+            ], 404);
+        }
+
+        $category->delete();
 
         return response()->json([
             'success' => true,
             'message' => 'Kategori laporan berhasil dihapus.',
-            'error' => null,
         ]);
     }
 }
