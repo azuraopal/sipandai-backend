@@ -7,8 +7,8 @@ use App\Models\Report;
 use App\Models\ReportAttachment;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Storage;
-use Validator;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class ReportAttachmentController extends Controller
 {
@@ -16,13 +16,16 @@ class ReportAttachmentController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'report_id' => 'required|uuid|exists:reports,id',
-            'file_url' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'purpose' => 'required|in:' . implode(',', array_keys(AttachmentPurpose::cases())),
-            'attachment' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'attachment' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048', // File input
+            'purpose' => 'required|in:' . implode(',', array_column(AttachmentPurpose::cases(), 'value')), // Perbaikan di sini
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['success' => false, 'message' => 'Validasi gagal.', 'errors' => $validator->errors()], 422);
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal.',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
         $report = Report::findOrFail($request->report_id);
@@ -32,8 +35,13 @@ class ReportAttachmentController extends Controller
         $file = $request->file('attachment');
         $path = $file->store('report_attachments', 'public');
 
+        $validPurpose = $request->purpose;
+        if (!in_array($validPurpose, array_column(AttachmentPurpose::cases(), 'value'))) {
+            $validPurpose = AttachmentPurpose::INITIAL_EVIDENCE->value;
+        }
+
         $attachment = $report->attachments()->create([
-            'purpose' => $request->purpose,
+            'purpose' => $validPurpose,
             'file_url' => Storage::url($path),
             'file_type' => $file->getClientMimeType(),
         ]);
@@ -44,13 +52,16 @@ class ReportAttachmentController extends Controller
             'data' => $attachment,
             'errors' => null
         ], 201);
-
     }
 
     public function destroy(ReportAttachment $reportAttachment)
     {
-        $filePath = str_replace('/storage', '', parse_url($reportAttachment->file_url, PHP_URL_PATH));
-        Storage::disk('public')->delete($filePath);
+        $this->authorize('delete', $reportAttachment);
+
+        $filePath = str_replace('/storage/', '', $reportAttachment->file_url);
+        if (Storage::disk('public')->exists($filePath)) {
+            Storage::disk('public')->delete($filePath);
+        }
 
         $reportAttachment->delete();
 
