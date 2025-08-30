@@ -311,7 +311,7 @@ class ReportController extends Controller
     public function show(Report $id)
     {
         $id->load([
-            'user:id,full_name,email_profile_picture_url',
+            'user:id,full_name,email,profile_picture_url',
             'reportType',
             'reportCategory',
             'district',
