@@ -45,6 +45,7 @@ Route::prefix('v1')->group(function () {
             Route::put('/{code}', [DistrictController::class, 'update']);
             Route::delete('/{code}', [DistrictController::class, 'destroy']);
 
+            Route::get('/{code}/villages', [VillageController::class, 'index']);
             Route::post('/{code}/villages', [VillageController::class, 'store']);
             Route::put('/{code}/villages/{village_code}', [VillageController::class, 'update']);
             Route::delete('/{code}/villages/{village_code}', [VillageController::class, 'destroy']);

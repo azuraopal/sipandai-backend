@@ -11,6 +11,34 @@ use Illuminate\Support\Facades\Validator;
 
 class VillageController extends Controller
 {
+    public function index($code, Request $request)
+    {
+        $district = District::where('code', $code)->firstOrFail();
+
+        $this->authorize('viewAny', Village::class);
+
+        $perPage = $request->get('per_page', 10);
+
+        $villages = Village::where('district_code', $district->code)
+            ->paginate($perPage);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'List villages berhasil diambil',
+            'data' => [
+                'items' => $villages->items(),
+                'meta' => [
+                    'current_page' => $villages->currentPage(),
+                    'last_page' => $villages->lastPage(),
+                    'per_page' => $villages->perPage(),
+                    'total' => $villages->total(),
+                ]
+            ],
+            'errors' => null
+        ], 200);
+    }
+
+
     public function store(Request $request, $code)
     {
         $district = District::where('code', $code)->firstOrFail();
