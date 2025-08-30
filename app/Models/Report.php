@@ -30,7 +30,7 @@ class Report extends Model
         'district_id',
         'village_id',
         'address_detail',
-
+        'phone_number',
         'coordinates',
         'current_status',
     ];
