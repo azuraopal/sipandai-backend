@@ -93,11 +93,11 @@ class User extends Authenticatable
 
     public function assignedTask() 
     {
-        return $this->hasMany(ReportAssignment::class, 'assigned_to_user_id');
+        return $this->hasMany(ReportUserAssignment::class, 'assigned_to_user_id');
     }
 
     public function givenTask()
     {
-        return $this->hasMany(ReportAssignment::class, 'assigned_by_user_id');
+        return $this->hasMany(ReportUserAssignment::class, 'assigned_by_user_id');
     }
 }

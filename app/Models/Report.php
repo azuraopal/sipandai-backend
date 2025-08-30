@@ -16,7 +16,7 @@ class Report extends Model
     use HasFactory, HasUuids, SoftDeletes;
 
     protected $with = [
-        'user',
+        'user', // Tetap di sini, tapi relationship user() sudah dimodifikasi
         'attachments',
     ];
 
@@ -30,7 +30,7 @@ class Report extends Model
         'district_id',
         'village_id',
         'address_detail',
-        'phone_number',
+
         'coordinates',
         'current_status',
     ];
@@ -41,7 +41,12 @@ class Report extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->select([
+            'id',
+            'full_name',
+            'email',
+            'profile_picture_url'
+        ]);
     }
 
     public function reportType(): BelongsTo
@@ -76,7 +81,7 @@ class Report extends Model
 
     public function assignments(): HasMany
     {
-        return $this->hasMany(ReportAssignment::class);
+        return $this->hasMany(ReportUserAssignment::class);
     }
 
     /**

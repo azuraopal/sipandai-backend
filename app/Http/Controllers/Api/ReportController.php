@@ -27,7 +27,7 @@ class ReportController extends Controller
 
         $reports = Report::query()
             ->with([
-                'user:id,full_name,email,profile_picture_url,phone_number',
+                'user:id,full_name,email,profile_picture_url',
                 'reportType:id,name',
                 'reportCategory:id,name',
                 'district:code,name',
@@ -64,7 +64,6 @@ class ReportController extends Controller
                     'full_name' => $report->user->full_name,
                     'email' => $report->user->email,
                     'profile_picture_url' => $report->user->profile_picture_url,
-                    'phone_number' => $report->user->phone_number,
                 ],
                 'attachments' => $report->attachments->map(function ($attachment) {
                     return [
@@ -312,13 +311,13 @@ class ReportController extends Controller
     public function show(Report $id)
     {
         $id->load([
-            'user',
+            'user:id,full_name,email_profile_picture_url',
             'reportType',
             'reportCategory',
             'district',
             'village',
             'attachments',
-            'statusHistories.user'
+            'statusHistories.user:id,full_name,role'
         ]);
 
         $mappedData = [
@@ -340,7 +339,6 @@ class ReportController extends Controller
                 'full_name' => $id->user->full_name,
                 'email' => $id->user->email,
                 'profile_picture_url' => $id->user->profile_picture_url,
-                'phone_number' => $id->user->phone_number,
             ],
             'attachments' => $id->attachments->map(function ($attachment) {
                 return [
