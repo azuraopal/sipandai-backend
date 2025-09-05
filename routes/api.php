@@ -75,10 +75,6 @@ Route::prefix('v1')->group(function () {
                 Route::put('/{id}/categories/{category}', [ReportCategoryController::class, 'update']);
                 Route::delete('/{id}/categories/{category}', [ReportCategoryController::class, 'destroy']);
             });
-
-            Route::prefix('/categories')->group(function () {
-
-            });
         });
     });
 });
