@@ -64,7 +64,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/', [ReportController::class, 'index']);
             Route::get('/{id}', [ReportController::class, 'show']);
 
-            Route::post('/assignment', [ReportUserAssignmentController::class, 'handle']);
+            Route::post('/submit', [ReportUserAssignmentController::class, 'handle']);
 
             Route::prefix('/types')->group(function () {
                 Route::post('/', [ReportTypeController::class, 'store']);
