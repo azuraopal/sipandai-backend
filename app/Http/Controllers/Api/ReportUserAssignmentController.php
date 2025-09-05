@@ -4,11 +4,15 @@ namespace App\Http\Controllers\Api;
 
 use App\Enums\ActionReport;
 use App\Enums\ReportStatus;
+use App\Enums\UserRole;
 use App\Models\Report;
+use App\Models\ReportOpdAssignment;
 use App\Models\ReportStatusHistory;
+use App\Models\ReportUserAssignment;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -62,28 +66,17 @@ class ReportUserAssignmentController extends Controller
             ReportStatus::PENDING_VERIFICATION->value,
         );
 
+        ReportOpdAssignment::create([
+            'report_id' => $report->id,
+            'opd_id' => $validated['opd_id'],
+            'assigned_by' => Auth::id(),
+            'assigned_at' => now(),
+        ]);
+
         return response()->json([
             'message' => 'Laporan telah diserahkan ke OPD',
         ]);
     }
-
-    private function createHistory(
-        Report $report,
-        string $action,
-        string $notes,
-        array $attachments = null,
-        ?string $status = null
-    ) {
-        return ReportStatusHistory::create([
-            'report_id' => $report->id,
-            'user_id' => Auth::id(),
-            'status' => $status ?? $report->current_status,
-            'action' => $action,
-            'notes' => $notes,
-            'attachments' => $attachments,
-        ]);
-    }
-
 
     private function verifyInitial(Request $request)
     {
@@ -91,18 +84,39 @@ class ReportUserAssignmentController extends Controller
 
         $validated = $request->validate([
             'report_id' => 'required|uuid|exists:reports,id',
+            'officer_id' => [
+                'required',
+                'uuid',
+                Rule::exists('users', 'id')->where('role', 'FIELD_OFFICER'),
+            ],
             'notes' => 'required|string',
         ]);
 
         $report = Report::findOrFail($validated['report_id']);
-        $report->update(['status' => 'INITIAL_VERIFIED']);
+        $report->update([
+            'current_status' => ReportStatus::APPROVED->value,
+        ]);
 
-        $this->createHistory($report, 'VERIFY_INITIAL', $validated['notes']);
+        $this->createHistory(
+            $report,
+            ActionReport::VERIFY_INITIAL->value,
+            $validated['notes'],
+            null,
+            ReportStatus::APPROVED->value
+        );
+
+        ReportOpdAssignment::create([
+            'report_id' => $report->id,
+            'opd_id' => $validated['opd_id'],
+            'assigned_by' => Auth::id(),
+            'assigned_at' => now(),
+        ]);
 
         return response()->json([
-            'message' => 'Report initial verification done'
+            'message' => 'Laporan verifikasi awal telah dilakukan dan disetujui'
         ]);
     }
+
 
     private function requestFurtherReview(Request $request)
     {
@@ -171,27 +185,46 @@ class ReportUserAssignmentController extends Controller
 
         $validated = $request->validate([
             'report_id' => 'required|uuid|exists:reports,id',
-            'officer_id' => 'required|uuid|exists:users,id',
+            'officer_id' => [
+                'required',
+                'uuid',
+                Rule::exists('users', 'id')->where(function ($query) {
+                    $query->where('role', 'FIELD_OFFICER');
+                }),
+            ],
             'notes' => 'required|string',
         ]);
 
-        $officer = User::findOrFail($validated['officer_id']);
-        if ($officer->role !== 'FIELD_OFFICER') {
-            throw ValidationException::withMessages([
-                'officer_id' => 'User is not a field officer'
-            ]);
-        }
-
         $report = Report::findOrFail($validated['report_id']);
+
         $report->update([
             'current_officer_id' => $validated['officer_id'],
-            'status' => 'IN_PROGRESS',
+            'current_status' => ReportStatus::IN_PROGRESS->value,
         ]);
 
-        $this->createHistory($report, 'ASSIGN_FIELD_OFFICER', $validated['notes']);
+        ReportOpdAssignment::where('report_id', $report->id)
+            ->whereNull('ended_at')
+            ->update([
+                'ended_at' => now(),
+            ]);
+
+        ReportUserAssignment::create([
+            'report_id' => $report->id,
+            'officer_id' => $validated['officer_id'],
+            'assigned_by' => Auth::id(),
+            'assigned_at' => now(),
+        ]);
+
+        $this->createHistory(
+            $report,
+            ActionReport::ASSIGN_FIELD_OFFICER->value,
+            $validated['notes'],
+            null,
+            ReportStatus::IN_PROGRESS->value
+        );
 
         return response()->json([
-            'message' => 'Field officer assigned'
+            'message' => 'Petugas lapangan berhasil ditugaskan',
         ]);
     }
 
@@ -207,14 +240,29 @@ class ReportUserAssignmentController extends Controller
         ]);
 
         $report = Report::findOrFail($validated['report_id']);
+
         $report->update([
-            'status' => 'FIELD_COMPLETED'
+            'current_status' => ReportStatus::COMPLETED->value,
         ]);
 
-        $this->createHistory($report, 'SUBMIT_FIELD_RESULT', $validated['notes'], $validated['attachments']);
+        ReportUserAssignment::where('report_id', $report->id)
+            ->whereNull('ended_at')
+            ->where('user_id', Auth::id())
+            ->update([
+                'ended_at' => now(),
+            ]);
+
+        $this->createHistory(
+            $report,
+            ActionReport::SUBMIT_FIELD_RESULT->value,
+            $validated['notes'],
+            $validated['attachments'],
+            ReportStatus::COMPLETED->value
+        );
 
         return response()->json([
-            'message' => 'Field result submitted'
+            'success' => true,
+            'message' => 'Field result submitted and assignment closed',
         ]);
     }
 
@@ -259,17 +307,37 @@ class ReportUserAssignmentController extends Controller
         ]);
     }
 
-    protected function authorizeRole($roles)
+    private function createHistory(
+        Report $report,
+        string $action,
+        string $notes,
+        array $attachments = null,
+        ?string $status = null
+    ) {
+        return ReportStatusHistory::create([
+            'report_id' => $report->id,
+            'user_id' => Auth::id(),
+            'status' => $status ?? $report->current_status,
+            'action' => $action,
+            'notes' => $notes,
+            'attachments' => $attachments,
+        ]);
+    }
+
+    protected function authorizeRole(string|array $roles)
     {
         $user = auth()->user();
 
-        $userRole = $user->role->value;
+        $userRole = $user->role instanceof \BackedEnum
+            ? $user->role->value
+            : $user->role;
 
-        $roles = (array) $roles;
+        if (is_string($roles)) {
+            $roles = [$roles];
+        }
 
-        if (!in_array($userRole, $roles, true)) {
+        if (!in_array($userRole, $roles)) {
             abort(403, 'Unauthorized: role tidak sesuai');
         }
     }
-
 }
