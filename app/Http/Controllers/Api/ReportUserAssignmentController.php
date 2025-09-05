@@ -16,6 +16,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Str;
 
 class ReportUserAssignmentController extends Controller
 {
@@ -234,8 +235,8 @@ class ReportUserAssignmentController extends Controller
 
         $validated = $request->validate([
             'report_id' => 'required|uuid|exists:reports,id',
-            'attachments' => 'required|array|min:1',
-            'attachments.*' => 'string',
+            'attachments' => 'required',
+            'attachments.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048',
             'notes' => 'required|string',
         ]);
 
@@ -247,24 +248,44 @@ class ReportUserAssignmentController extends Controller
 
         ReportUserAssignment::where('report_id', $report->id)
             ->whereNull('ended_at')
-            ->where('user_id', Auth::id())
+            ->where('officer_id', Auth::id())
             ->update([
                 'ended_at' => now(),
             ]);
+
+        $files = $request->allFiles()['attachments'] ?? [];
+
+        if (!is_array($files)) {
+            $files = [$files];
+        }
+
+        foreach ($files as $file) {
+            $path = $file->store('report_attachments', 'public');
+
+            DB::table('report_attachments')->insert([
+                'id' => Str::uuid()->toString(),
+                'report_id' => $report->id,
+                'purpose' => 'FIELD_RESULT',
+                'file_url' => '/storage/' . $path,
+                'file_type' => $file->getMimeType(),
+                'created_at' => now(),
+            ]);
+        }
 
         $this->createHistory(
             $report,
             ActionReport::SUBMIT_FIELD_RESULT->value,
             $validated['notes'],
-            $validated['attachments'],
+            null,
             ReportStatus::COMPLETED->value
         );
 
         return response()->json([
             'success' => true,
-            'message' => 'Field result submitted and assignment closed',
+            'message' => 'Field result submitted, attachments saved, and assignment closed',
         ]);
     }
+
 
     private function requestRevision(Request $request)
     {
