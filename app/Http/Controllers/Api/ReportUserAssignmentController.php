@@ -86,17 +86,15 @@ class ReportUserAssignmentController extends Controller
 
         $validated = $request->validate([
             'report_id' => 'required|uuid|exists:reports,id',
-            'officer_id' => [
-                'required',
-                'uuid',
-                Rule::exists('users', 'id')->where('role', 'FIELD_OFFICER'),
-            ],
             'notes' => 'required|string',
         ]);
 
         $report = Report::findOrFail($validated['report_id']);
 
-        if (Auth::user()->opd()->id !== $report->current_opd_id) {
+        if (!ReportOpdAssignment::where('report_id', $report->id)
+                ->where('opd_id', Auth::user()->opd->id)
+                ->exists()
+        ) {
             throw ValidationException::withMessages([
                 'report_id' => ['Laporan tidak berada di OPD Anda.'],
             ]);
@@ -113,13 +111,6 @@ class ReportUserAssignmentController extends Controller
             null,
             ReportStatus::APPROVED->value
         );
-
-        ReportOpdAssignment::create([
-            'report_id' => $report->id,
-            'opd_id' => $validated['opd_id'],
-            'assigned_by' => Auth::id(),
-            'assigned_at' => now(),
-        ]);
 
         return response()->json([
             'message' => 'Laporan verifikasi awal telah dilakukan dan disetujui'
