@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Str;
 
 class ReportOpdAssignment extends Model
 {
@@ -12,8 +13,10 @@ class ReportOpdAssignment extends Model
     protected $table = 'report_opd_assignments';
     protected $keyType = 'string';
     public $incrementing = false;
+    protected $primaryKey = 'id';
 
     protected $fillable = [
+        'id',
         'report_id',
         'opd_id',
         'assigned_by',
@@ -25,6 +28,17 @@ class ReportOpdAssignment extends Model
         'assigned_at' => 'datetime',
         'ended_at' => 'datetime',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->id)) {
+                $model->id = Str::uuid()->toString();
+            }
+        });
+    }
 
     public function report()
     {

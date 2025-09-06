@@ -42,6 +42,7 @@ class ReportUserAssignmentController extends Controller
             ], 400),
         };
     }
+
     private function dispositionReport(Request $request)
     {
         $this->authorizeRole('DISTRICT_ADMIN');
@@ -94,6 +95,13 @@ class ReportUserAssignmentController extends Controller
         ]);
 
         $report = Report::findOrFail($validated['report_id']);
+
+        if (Auth::user()->opd()->id !== $report->current_opd_id) {
+            throw ValidationException::withMessages([
+                'report_id' => ['Laporan tidak berada di OPD Anda.'],
+            ]);
+        }
+
         $report->update([
             'current_status' => ReportStatus::APPROVED->value,
         ]);
@@ -117,7 +125,6 @@ class ReportUserAssignmentController extends Controller
             'message' => 'Laporan verifikasi awal telah dilakukan dan disetujui'
         ]);
     }
-
 
     private function requestFurtherReview(Request $request)
     {
