@@ -11,42 +11,32 @@ class ReportCategorySeeder extends Seeder
     public function run(): void
     {
         $categories = [
-            ['type_id' => 1, 'name' => 'Laporan Kas Harian'],
-            ['type_id' => 1, 'name' => 'Laporan Kas Mingguan'],
-            ['type_id' => 1, 'name' => 'Laporan Kas Bulanan'],
-            ['type_id' => 2, 'name' => 'Ringkasan Tahunan'],
-            ['type_id' => 2, 'name' => 'Laporan Keuangan Akhir Tahun'],
-            ['type_id' => 2, 'name' => 'Laporan Rencana Anggaran'],
-            ['type_id' => 3, 'name' => 'Laporan Penjualan Produk'],
-            ['type_id' => 3, 'name' => 'Laporan Penjualan Layanan'],
-            ['type_id' => 3, 'name' => 'Laporan Penjualan Online'],
-            ['type_id' => 3, 'name' => 'Laporan Penjualan Offline'],
-            ['type_id' => 4, 'name' => 'Inventaris Gedung'],
-            ['type_id' => 4, 'name' => 'Inventaris Kendaraan'],
-            ['type_id' => 4, 'name' => 'Inventaris Elektronik'],
-            ['type_id' => 5, 'name' => 'Laporan Proyek A'],
-            ['type_id' => 5, 'name' => 'Laporan Proyek B'],
-            ['type_id' => 5, 'name' => 'Laporan Proyek C'],
-            ['type_id' => 6, 'name' => 'Audit Keuangan'],
-            ['type_id' => 6, 'name' => 'Audit Proses'],
-            ['type_id' => 6, 'name' => 'Audit Kepatuhan'],
-            ['type_id' => 7, 'name' => 'Notulen Rapat Mingguan'],
-            ['type_id' => 7, 'name' => 'Notulen Rapat Bulanan'],
-            ['type_id' => 8, 'name' => 'Insiden Keselamatan Kerja'],
-            ['type_id' => 8, 'name' => 'Insiden Kesehatan Pegawai'],
-            ['type_id' => 9, 'name' => 'Pelatihan Teknis'],
-            ['type_id' => 9, 'name' => 'Pelatihan Softskill'],
-            ['type_id' => 10, 'name' => 'Evaluasi Karyawan'],
-            ['type_id' => 10, 'name' => 'Evaluasi Proyek'],
-            ['type_id' => 11, 'name' => 'Produksi Harian'],
-            ['type_id' => 11, 'name' => 'Produksi Bulanan'],
-            ['type_id' => 12, 'name' => 'Distribusi Regional'],
+            // Infrastruktur & Fasilitas Umum
+            ['type_id' => 1, 'name' => 'Jalan rusak / berlubang'],
+            ['type_id' => 1, 'name' => 'Trotoar atau jalur sepeda rusak'],
+            ['type_id' => 1, 'name' => 'Penerangan jalan mati'],
+            ['type_id' => 1, 'name' => 'Drainase / saluran air tersumbat'],
+            ['type_id' => 1, 'name' => 'Jembatan / gorong-gorong rusak'],
+
+            // Kebersihan dan Lingkungan
+            ['type_id' => 2, 'name' => 'Sampah menumpuk / tidak terangkut'],
+            ['type_id' => 2, 'name' => 'Pencemaran air / sungai'],
+            ['type_id' => 2, 'name' => 'Pencemaran udara (asap, bau, debu)'],
+            ['type_id' => 2, 'name' => 'Hewan liar mengganggu lingkungan'],
+            ['type_id' => 2, 'name' => 'Taman kota rusak / terbengkalai'],
+
+            // Keamanan & Ketertiban
+            ['type_id' => 3, 'name' => 'Lampu lalu lintas mati / rusak'],
+            ['type_id' => 3, 'name' => 'Kecelakaan lalu lintas'],
+            ['type_id' => 3, 'name' => 'Pelanggaran parkir / jalan'],
+            ['type_id' => 3, 'name' => 'Gangguan keamanan'],
+            ['type_id' => 3, 'name' => 'Kebakaran / potensi kebakaran'],
         ];
 
-        foreach ($categories as $cat) {
+        foreach ($categories as $category) {
             DB::table('report_categories')->insert([
-                'type_id' => $cat['type_id'],
-                'name' => $cat['name'],
+                'type_id' => $category['type_id'],
+                'name' => $category['name'],
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
