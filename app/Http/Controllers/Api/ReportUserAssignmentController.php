@@ -91,7 +91,8 @@ class ReportUserAssignmentController extends Controller
 
         $report = Report::findOrFail($validated['report_id']);
 
-        if (!ReportOpdAssignment::where('report_id', $report->id)
+        if (
+            !ReportOpdAssignment::where('report_id', $report->id)
                 ->where('opd_id', Auth::user()->opd->id)
                 ->exists()
         ) {
@@ -196,16 +197,25 @@ class ReportUserAssignmentController extends Controller
 
         $report = Report::findOrFail($validated['report_id']);
 
+        $assignment = ReportOpdAssignment::where('report_id', $report->id)
+            ->where('opd_id', Auth::user()->opd->id)
+            ->whereNull('ended_at')
+            ->first();
+
+        if (!$assignment) {
+            throw ValidationException::withMessages([
+                'report_id' => ['Laporan tidak berada di OPD Anda.'],
+            ]);
+        }
+
+        $assignment->update([
+            'ended_at' => now(),
+        ]);
+
         $report->update([
             'current_officer_id' => $validated['officer_id'],
             'current_status' => ReportStatus::IN_PROGRESS->value,
         ]);
-
-        ReportOpdAssignment::where('report_id', $report->id)
-            ->whereNull('ended_at')
-            ->update([
-                'ended_at' => now(),
-            ]);
 
         ReportUserAssignment::create([
             'report_id' => $report->id,
