@@ -117,17 +117,12 @@ class ReportController extends Controller
 
         $phoneNumber = $request->phone_number;
         $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        DB::table('submit_report_tokens')->updateOrInsert([
-            'phone_number' => $phoneNumber,
-            'token_hash' => Hash::make($code),
-            'created_at' => now(),
-        ]);
 
         try {
             $whatsappService = new WhatsAppService();
             $message = "Kode OTP Anda untuk mengirim laporan SIPANDAI Anda adalah: {$code}. Kode ini valid selama 5 menit.";
 
-            $isSend = $whatsappService->sendMessage($request->phone_number, $message);
+            $isSend = $whatsappService->sendMessage($phoneNumber, $message);
 
             if (!$isSend) {
                 return response()->json([
@@ -135,6 +130,17 @@ class ReportController extends Controller
                     'message' => 'Gagal mengirim OTP. Silakan coba lagi.',
                 ]);
             }
+
+            DB::transaction(function () use ($phoneNumber, $code) {
+                DB::table('submit_report_tokens')->updateOrInsert(
+                    ['phone_number' => $phoneNumber],
+                    [
+                        'token_hash' => Hash::make($code),
+                        'created_at' => now(),
+                    ]
+                );
+            });
+
         } catch (\Exception $e) {
             Log::error("Gagal mengirim OTP: " . $e->getMessage());
             return response()->json([
@@ -150,6 +156,7 @@ class ReportController extends Controller
             'errors' => null
         ]);
     }
+
 
     public function verifyOtp(Request $request)
     {
@@ -184,6 +191,74 @@ class ReportController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Nomor telepon berhasil diverifikasi.',
+        ]);
+    }
+
+    public function resendOtp(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'phone_number' => 'required|string|max:15',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $phoneNumber = $request->phone_number;
+
+        $tokenData = DB::table('submit_report_tokens')
+            ->where('phone_number', $phoneNumber)
+            ->first();
+
+        if ($tokenData && !Carbon::parse($tokenData->created_at)->addMinutes(5)->isPast()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'OTP sebelumnya masih aktif. Silakan gunakan kode yang sudah dikirim atau tunggu hingga kedaluwarsa.',
+            ], 422);
+        }
+
+        $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        try {
+            $whatsappService = new WhatsAppService();
+            $message = "Kode OTP baru Anda untuk verifikasi SIPANDAI adalah: {$code}. Kode ini valid selama 5 menit.";
+
+            $isSend = $whatsappService->sendMessage($phoneNumber, $message);
+
+            if (!$isSend) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal mengirim OTP. Silakan coba lagi.',
+                ]);
+            }
+
+            DB::transaction(function () use ($phoneNumber, $code) {
+                DB::table('submit_report_tokens')->updateOrInsert(
+                    ['phone_number' => $phoneNumber],
+                    [
+                        'token_hash' => Hash::make($code),
+                        'created_at' => now(),
+                    ]
+                );
+            });
+
+        } catch (\Exception $e) {
+            Log::error("Gagal mengirim ulang OTP: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat mengirim OTP ulang.',
+                'errors' => $e->getMessage()
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'OTP baru telah dikirim ke nomor telepon Anda.',
+            'errors' => null
         ]);
     }
 

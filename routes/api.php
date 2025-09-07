@@ -17,6 +17,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/type', [ReportTypeController::class, 'index']);
         Route::post('/request-otp', [ReportController::class, 'requestOtp']);
         Route::post('/verify-otp', [ReportController::class, 'verifyOtp']);
+        Route::post('/resend-otp', [ReportController::class, 'resendOtp']);
     });
 
     Route::prefix('/auth')->group(function () {
