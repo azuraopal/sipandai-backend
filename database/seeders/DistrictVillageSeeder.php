@@ -12,8 +12,9 @@ class DistrictVillageSeeder extends Seeder
     {
         $districts = Http::get("https://www.emsifa.com/api-wilayah-indonesia/api/districts/3201.json")->json();
 
+        $districtCounter = 1;
         foreach ($districts as $district) {
-            $districtCode = substr($district['id'], -2);
+            $districtCode = str_pad($districtCounter, 2, '0', STR_PAD_LEFT);
 
             DB::table('districts')->updateOrInsert(
                 ['code' => $districtCode],
@@ -26,8 +27,11 @@ class DistrictVillageSeeder extends Seeder
             $villages = Http::get("https://www.emsifa.com/api-wilayah-indonesia/api/villages/{$district['id']}.json")->json();
 
             foreach ($villages as $village) {
+                $villageCode = substr($village['id'], -2);
+                $formattedCode = sprintf("%02d.%02d", $districtCode, $villageCode);
+
                 DB::table('villages')->updateOrInsert(
-                    ['code' => substr($village['id'], -5)],
+                    ['code' => $formattedCode],
                     [
                         'district_code' => $districtCode,
                         'name' => $village['name'],
@@ -36,6 +40,7 @@ class DistrictVillageSeeder extends Seeder
                     ]
                 );
             }
+            $districtCounter++;
         }
     }
 }
