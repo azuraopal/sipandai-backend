@@ -201,6 +201,14 @@ class ReportUserAssignmentController extends Controller
 
         $report = Report::findOrFail($validated['report_id']);
 
+        $lastStatus = $this->getLatestStatus($report->id);
+
+        if ($lastStatus === ReportStatus::PENDING_VERIFICATION) {
+            throw ValidationException::withMessages([
+                'report_id' => ['Laporan masih menunggu verifikasi, tidak bisa assign petugas lapangan.'],
+            ]);
+        }
+
         $assignment = ReportOpdAssignment::where('report_id', $report->id)
             ->where('opd_id', Auth::user()->opd->id)
             ->whereNull('ended_at')
@@ -372,5 +380,21 @@ class ReportUserAssignmentController extends Controller
         if (!in_array($userRole, $roles)) {
             abort(403, 'Unauthorized: role tidak sesuai');
         }
+    }
+
+    private function getLatestStatus(string $reportId): ?ReportStatus
+    {
+        $status = ReportStatusHistory::where('report_id', $reportId)
+            ->orderByDesc('created_at')
+            ->value('status');
+
+        if ($status === null) {
+            return null;
+        }
+        if ($status instanceof ReportStatus) {
+            return $status;
+        }
+
+        return ReportStatus::from((string) $status);
     }
 }
