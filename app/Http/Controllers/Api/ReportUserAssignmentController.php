@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Enums\ActionReport;
 use App\Enums\ReportStatus;
-use App\Enums\UserRole;
 use App\Models\Report;
 use App\Models\ReportOpdAssignment;
 use App\Models\ReportStatusHistory;
