@@ -9,8 +9,10 @@ use App\Models\ReportOpdAssignment;
 use App\Models\ReportStatusHistory;
 use App\Models\ReportUserAssignment;
 use App\Models\User;
+use App\Services\WhatsAppService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
@@ -353,16 +355,20 @@ class ReportUserAssignmentController extends Controller
 
         $report = Report::findOrFail($validated['report_id']);
 
-        $lastStatus = $this->getLatestStatus($report->id);
-
-        if ($lastStatus !== ReportStatus::PENDING_QA_REVIEW) {
+        if ($report->current_status !== ReportStatus::PENDING_QA_REVIEW) {
             throw ValidationException::withMessages([
-                'report_id' => ['Field result hanya bisa disubmit jika status laporan sedang PENDING_QA_REVIEW.'],
+                'report_id' => [
+                    'Report hanya bisa di-complete jika status laporan sedang PENDING_QA_REVIEW.'
+                ],
             ]);
         }
 
+        $oldStatus = $report->current_status->value;
+        $newStatus = ReportStatus::COMPLETED->value;
+        $update_at = now()->toDateTimeString();
+
         $report->update([
-            'current_status' => ReportStatus::COMPLETED->value,
+            'current_status' => $newStatus,
         ]);
 
         $this->createHistory(
@@ -370,13 +376,39 @@ class ReportUserAssignmentController extends Controller
             ActionReport::COMPLETE_REPORT->value,
             $validated['notes'],
             null,
-            ReportStatus::COMPLETED->value
+            $newStatus
         );
 
-        $this->createHistory($report, 'COMPLETE', $validated['notes']);
+        try {
+            $whatsappService = new WhatsAppService();
+
+            $trackingUrl = "https://sipandai.ashtrath.me/report/{$report->report_code}";
+
+            $message = <<<EOT
+            *[SIPANDAI] Pembaruan Status Laporan*
+
+            Halo 👋,
+            Status laporan {$report->report_code} — "{$report->title}" berubah:
+            {$oldStatus} ➜ {$newStatus} {$update_at}.
+
+            Catatan: {$validated['notes']}
+
+            Lihat detail & tindak lanjut:
+            {$trackingUrl}
+
+            Kode Laporan: *{$report->report_code}* . Simpan untuk cek status.
+            EOT;
+
+            if (!empty($report->phone_number)) {
+                $whatsappService->sendMessage($report->phone_number, $message);
+            }
+
+        } catch (\Exception $e) {
+            Log::error("Gagal mengirim notifikasi WhatsApp ke {$report->phone_number}: " . $e->getMessage());
+        }
 
         return response()->json([
-            'message' => 'Report completed'
+            'message' => 'Report completed & notification sent'
         ]);
     }
 

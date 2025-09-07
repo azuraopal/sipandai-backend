@@ -16,7 +16,7 @@ class Report extends Model
     use HasFactory, HasUuids, SoftDeletes;
 
     protected $with = [
-        'user', // Tetap di sini, tapi relationship user() sudah dimodifikasi
+        'user',
         'attachments',
     ];
 
