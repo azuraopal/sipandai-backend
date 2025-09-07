@@ -32,6 +32,8 @@ class Report extends Model
         'address_detail',
         'phone_number',
         'coordinates',
+        'current_opd_id',
+        'current_officer_id',
         'current_status',
     ];
 

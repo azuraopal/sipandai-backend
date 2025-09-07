@@ -55,8 +55,12 @@ class ReportUserAssignmentController extends Controller
 
         $report = Report::findOrFail($validated['report_id']);
 
+        $opdAdminUser = User::where('opd_id', $validated['opd_id'])
+            ->where('role', 'OPD_ADMIN')
+            ->firstOrFail();
+
         $report->update([
-            'current_opd_id' => $validated['opd_id'],
+            'current_opd_id' => $opdAdminUser->id,
             'status' => ReportStatus::PENDING_VERIFICATION->value,
         ]);
 
