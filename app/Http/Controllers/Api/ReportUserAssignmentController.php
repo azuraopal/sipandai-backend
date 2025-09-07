@@ -95,6 +95,14 @@ class ReportUserAssignmentController extends Controller
 
         $report = Report::findOrFail($validated['report_id']);
 
+        $lastStatus = $this->getLatestStatus($report->id);
+
+        if ($lastStatus !== ReportStatus::PENDING_VERIFICATION) {
+            throw ValidationException::withMessages([
+                'report_id' => ['Laporan hanya bisa diverifikasi jika status terakhir masih PENDING_VERIFICATION.'],
+            ]);
+        }
+
         if (
             !ReportOpdAssignment::where('report_id', $report->id)
                 ->where('opd_id', Auth::user()->opd->id)
@@ -262,8 +270,16 @@ class ReportUserAssignmentController extends Controller
 
         $report = Report::findOrFail($validated['report_id']);
 
+        $lastStatus = $this->getLatestStatus($report->id);
+
+        if ($lastStatus !== ReportStatus::IN_PROGRESS) {
+            throw ValidationException::withMessages([
+                'report_id' => ['Field result hanya bisa disubmit jika status laporan sedang IN_PROGRESS.'],
+            ]);
+        }
+
         $report->update([
-            'current_status' => ReportStatus::COMPLETED->value,
+            'current_status' => ReportStatus::PENDING_QA_REVIEW->value,
         ]);
 
         ReportUserAssignment::where('report_id', $report->id)
@@ -297,7 +313,7 @@ class ReportUserAssignmentController extends Controller
             ActionReport::SUBMIT_FIELD_RESULT->value,
             $validated['notes'],
             null,
-            ReportStatus::COMPLETED->value
+            ReportStatus::PENDING_QA_REVIEW->value
         );
 
         return response()->json([
@@ -305,7 +321,6 @@ class ReportUserAssignmentController extends Controller
             'message' => 'Field result submitted, attachments saved, and assignment closed',
         ]);
     }
-
 
     private function requestRevision(Request $request)
     {
@@ -336,12 +351,30 @@ class ReportUserAssignmentController extends Controller
             'report_id' => 'required|uuid|exists:reports,id',
             'notes' => 'required|string',
         ]);
+
         $report = Report::findOrFail($validated['report_id']);
+
+        $lastStatus = $this->getLatestStatus($report->id);
+
+        if ($lastStatus !== ReportStatus::PENDING_QA_REVIEW) {
+            throw ValidationException::withMessages([
+                'report_id' => ['Field result hanya bisa disubmit jika status laporan sedang PENDING_QA_REVIEW.'],
+            ]);
+        }
+
         $report->update([
-            'status' => 'COMPLETED'
+            'current_status' => ReportStatus::COMPLETED->value,
         ]);
 
-        $this->createHistory($report, 'COMPLETE_REPORT', $validated['notes']);
+        $this->createHistory(
+            $report,
+            ActionReport::COMPLETE_REPORT->value,
+            $validated['notes'],
+            null,
+            ReportStatus::COMPLETED->value
+        );
+
+        $this->createHistory($report, 'COMPLETE', $validated['notes']);
 
         return response()->json([
             'message' => 'Report completed'
