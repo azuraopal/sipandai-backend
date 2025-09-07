@@ -44,7 +44,7 @@ class OpdController extends Controller
 
     public function store(Request $request)
     {
-        // $this->authorize('create', Opd::class);
+        $this->authorize('create', Opd::class);
 
         $user = $request->user();
 
