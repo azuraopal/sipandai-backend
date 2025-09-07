@@ -1,19 +1,34 @@
 <?php
 namespace App\Http\Controllers\Api;
 
+use App\Enums\UserRole;
 use App\Policies\OpdPolicy;
 use App\Models\Opd;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use App\Http\Controllers\Controller;
-use Validator;
+use Illuminate\Support\Facades\Auth;
 
 #[OpdPolicy(Opd::class)]
 class OpdController extends Controller
 {
+    private function authorizeRole(array $roles)
+    {
+        $user = Auth::user();
+        $userRole = $user->role instanceof UserRole ? $user->role->value : $user->role;
+
+        if (! in_array($userRole, $roles, true)) {
+            abort(response()->json([
+                'success' => false,
+                'message' => 'Anda tidak memiliki akses untuk aksi ini.',
+                'data' => null,
+                'errors' => ['Unauthorized'],
+            ], 403));
+        }
+    }
+
     public function index()
     {
-        $this->authorize('viewAny', Opd::class);
         try {
             $opds = Opd::paginate(10);
 
@@ -31,7 +46,6 @@ class OpdController extends Controller
                 ],
                 'errors' => null
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -44,7 +58,7 @@ class OpdController extends Controller
 
     public function store(Request $request)
     {
-        $this->authorize('create', Opd::class);
+        $this->authorizeRole([UserRole::CITY_ADMIN->value]);
 
         $user = $request->user();
 
@@ -57,22 +71,12 @@ class OpdController extends Controller
             ], 409);
         }
 
-        $validator = Validator::make($request->all(), [
+        $validated = $request->validate([
             'name' => 'required|string|max:100|unique:opds,name',
         ]);
 
-        if( $validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validasi Gagal.',
-                'data' => null,
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
         try {
-
-            $opd = Opd::create($request->only('name'));
+            $opd = Opd::create($validated);
             $user->update(['opd_id' => $opd->id]);
 
             return response()->json([
@@ -100,12 +104,11 @@ class OpdController extends Controller
 
     public function show(Opd $opd)
     {
-        $this->authorize('view', $opd);
         try {
             return response()->json([
                 'success' => true,
                 'message' => 'Detail OPD berhasil diambil.',
-                'data' => [$opd],
+                'data' => $opd,
                 'errors' => null
             ], 200);
         } catch (\Exception $e) {
@@ -120,13 +123,14 @@ class OpdController extends Controller
 
     public function update(Request $request, Opd $opd)
     {
-        $this->authorize('update', $opd);
+        $this->authorizeRole([UserRole::CITY_ADMIN->value]);
+
         try {
-            $request->validate([
+            $validated = $request->validate([
                 'name' => 'required|string|max:100|unique:opds,name,' . $opd->id,
             ]);
 
-            $opd->update($request->all());
+            $opd->update($validated);
 
             return response()->json([
                 'success' => true,
@@ -153,7 +157,8 @@ class OpdController extends Controller
 
     public function destroy(Opd $opd)
     {
-        $this->authorize('delete', $opd);
+        $this->authorizeRole([UserRole::CITY_ADMIN->value]);
+
         try {
             $opd->delete();
 

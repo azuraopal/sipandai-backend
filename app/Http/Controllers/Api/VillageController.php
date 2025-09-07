@@ -2,20 +2,35 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\UserRole;
 use App\Models\District;
 use App\Models\Village;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class VillageController extends Controller
 {
+    private function authorizeRole(array $roles)
+    {
+        $user = Auth::user();
+        $userRole = $user->role instanceof UserRole ? $user->role->value : $user->role;
+
+        if (! in_array($userRole, $roles, true)) {
+            abort(response()->json([
+                'success' => false,
+                'message' => 'Anda tidak memiliki akses untuk aksi ini.',
+                'data' => null,
+                'errors' => ['Unauthorized'],
+            ], 403));
+        }
+    }
+
     public function index($code, Request $request)
     {
         $district = District::where('code', $code)->firstOrFail();
-
-        $this->authorize('viewAny', Village::class);
 
         $perPage = $request->get('per_page', 10);
 
@@ -38,11 +53,11 @@ class VillageController extends Controller
         ], 200);
     }
 
-
     public function store(Request $request, $code)
     {
+        $this->authorizeRole([UserRole::CITY_ADMIN->value, UserRole::DISTRICT_ADMIN->value]);
+
         $district = District::where('code', $code)->firstOrFail();
-        $this->authorize('create', [Village::class, $district]);
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255|unique:villages,name',
@@ -101,12 +116,12 @@ class VillageController extends Controller
 
     public function update(Request $request, $code, $villageCode)
     {
-        $district = District::findOrFail($code);
+        $this->authorizeRole([UserRole::CITY_ADMIN->value, UserRole::DISTRICT_ADMIN->value]);
+
+        $district = District::where('code', $code)->firstOrFail();
         $village = Village::where('code', $villageCode)
             ->where('district_code', $district->code)
             ->firstOrFail();
-
-        // $this->authorize('update', $code);
 
         if ($village->district_code !== $district->code) {
             return response()->json([
@@ -116,7 +131,6 @@ class VillageController extends Controller
                 'errors' => null,
             ], 400);
         }
-
 
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|required|string|max:255',
@@ -143,13 +157,13 @@ class VillageController extends Controller
 
     public function destroy($code, $villageCode)
     {
+        $this->authorizeRole([UserRole::CITY_ADMIN->value, UserRole::DISTRICT_ADMIN->value]);
+
         $district = District::where('code', $code)->firstOrFail();
 
         $village = Village::where('code', $villageCode)
             ->where('district_code', $district->code)
             ->firstOrFail();
-
-        $this->authorize('destroy', $village);
 
         if ($village->district_code !== $district->code) {
             return response()->json([

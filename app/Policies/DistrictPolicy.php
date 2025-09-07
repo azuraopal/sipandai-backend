@@ -16,20 +16,20 @@ class DistrictPolicy
         return null;
     }
 
-    public function viewAny(User $user): bool
+    public function viewAny(User $user)//: bool
     {
-        if ($user->role->value === UserRole::CITY_ADMIN->value) {
-            return true;
-        }
-        return true;
+        // if ($user->role->value === UserRole::CITY_ADMIN->value) {
+        //     return true;
+        // }
+        // return true;
     }
 
-    public function view(User $user, District $district): bool
+    public function view(User $user, District $district)//: bool
     {
-        if ($user->role->value === UserRole::CITY_ADMIN->value) {
-            return true;
-        }
-        return false;
+        // if ($user->role->value === UserRole::CITY_ADMIN->value) {
+        //     return true;
+        // }
+        // return false;
     }
 
     public function create(User $user): bool
@@ -40,19 +40,19 @@ class DistrictPolicy
         return false;
     }
 
-    public function update(User $user, District $district): bool
+    public function update(User $user, District $district)//: bool
     {
-        if ($user->role->value === UserRole::CITY_ADMIN->value) {
-            return true;
-        }
-        return false;
+        // if ($user->role->value === UserRole::CITY_ADMIN->value) {
+        //     return true;
+        // }
+        // return false;
     }
 
-    public function destroy(User $user, District $district): bool
+    public function destroy(User $user, District $district)//: bool
     {
-        if ($user->role->value === UserRole::CITY_ADMIN->value) {
-            return true;
-        }
-        return false;
+        // if ($user->role->value === UserRole::CITY_ADMIN->value) {
+        //     return true;
+        // }
+        // return false;
     }
 }

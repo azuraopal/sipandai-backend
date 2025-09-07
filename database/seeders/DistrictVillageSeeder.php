@@ -26,9 +26,10 @@ class DistrictVillageSeeder extends Seeder
 
             $villages = Http::get("https://www.emsifa.com/api-wilayah-indonesia/api/villages/{$district['id']}.json")->json();
 
-            foreach ($villages as $village) {
-                $villageCode = substr($village['id'], -2);
-                $formattedCode = sprintf("%02d.%02d", $districtCode, $villageCode);
+            foreach ($villages as $index => $village) {
+                $villageCode = str_pad($index + 1, 2, '0', STR_PAD_LEFT);
+
+                $formattedCode = $districtCode . '.' . $villageCode;
 
                 DB::table('villages')->updateOrInsert(
                     ['code' => $formattedCode],

@@ -8,45 +8,45 @@ use App\Enums\UserRole;
 
 class VillagePolicy
 {
-    public function before(User $user, string $ability): bool|null
+    public function before(User $user, string $ability)//: bool|null
     {
-        if ($user->role === UserRole::CITY_ADMIN) {
-            return true;
-        }
-        return null;
+        // if ($user->role === UserRole::CITY_ADMIN) {
+        //     return true;
+        // }
+        // return null;
     }
 
-    public function viewAny(User $user): bool
+    public function viewAny(User $user)//: bool
     {
-        return true;
+        // return true;
     }
 
-    public function view(User $user, Village $village): bool
+    public function view(User $user, Village $village)//: bool
     {
-        return true;
+        // return true;
     }
 
-    public function create(User $user, Village $village): bool
+    public function create(User $user, Village $village)//: bool
     {
-        return in_array($user->role, [
-            UserRole::CITY_ADMIN,
-            UserRole::DISTRICT_ADMIN
-        ]);
+        // return in_array($user->role, [
+        //     UserRole::CITY_ADMIN,
+        //     UserRole::DISTRICT_ADMIN
+        // ]);
     }
 
-    public function update(User $user, Village $village): bool
+    public function update(User $user, Village $village)//: bool
     {
-        return in_array($user->role, [
-            UserRole::CITY_ADMIN,
-            UserRole::DISTRICT_ADMIN
-        ]);
+        // return in_array($user->role, [
+        //     UserRole::CITY_ADMIN,
+        //     UserRole::DISTRICT_ADMIN
+        // ]);
     }
 
-    public function destroy(User $user, Village $village): bool
+    public function destroy(User $user, Village $village)//: bool
     {
-        return in_array($user->role, [
-            UserRole::CITY_ADMIN,
-            UserRole::DISTRICT_ADMIN
-        ]);
+        // return in_array($user->role, [
+        //     UserRole::CITY_ADMIN,
+        //     UserRole::DISTRICT_ADMIN
+        // ]);
     }
 }

@@ -2,20 +2,34 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\UserRole;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\District;
 use App\Policies\DistrictPolicy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-#[DistrictPolicy(District::class)]
-
+use Illuminate\Support\Facades\Auth;
 class DistrictController extends Controller
 {
+    private function authorizeRole(string $role)
+    {
+        $user = Auth::user();
+
+        $userRole = $user->role instanceof UserRole ? $user->role->value : $user->role;
+
+        if ($userRole !== $role) {
+            abort(response()->json([
+                'success' => false,
+                'message' => 'Anda tidak memiliki akses untuk aksi ini.',
+                'data' => null,
+                'errors' => ['Unauthorized']
+            ], 403));
+        }
+    }
+    
     public function index(Request $request)
     {
-        $this->authorize('viewAny', District::class);
-
         $perPage = $request->get('per_page', 10);
         $districts = District::paginate($perPage);
 
@@ -37,7 +51,7 @@ class DistrictController extends Controller
 
     public function store(Request $request)
     {
-        $this->authorize('create', District::class);
+        $this->authorizeRole(UserRole::CITY_ADMIN->value);
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255|unique:districts,name',
@@ -84,7 +98,7 @@ class DistrictController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Kecamatan beserta desa berhasil ditambahkan.',
-                'data' => $district->load('villages'),
+                'data' => [$district->load('villages')],
                 'errors' => null
             ], 201);
 
@@ -95,26 +109,25 @@ class DistrictController extends Controller
                 'success' => false,
                 'message' => 'Terjadi kesalahan saat menyimpan data.',
                 'data' => null,
-                'errors' => $e->getMessage()
+                'errors' => [$e->getMessage()]
             ], 500);
         }
     }
 
-    public function show(District $id)
+    public function show(District $district)
     {
-        $this->authorize('view', $id);
-
         return response()->json([
             'success' => true,
             'message' => 'Detail district berhasil diambil',
-            'data' => $id->load('villages'),
+            'data' => [$district->load('villages')],
             'errors' => null
         ], 200);
     }
 
     public function update(Request $request, District $district)
     {
-        $this->authorize('update', $district);
+        $this->authorizeRole(UserRole::CITY_ADMIN->value);
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255'
         ]);
@@ -140,10 +153,11 @@ class DistrictController extends Controller
         ], 200);
     }
 
-    public function destroy(District $id)
+    public function destroy(District $district)
     {
-        $this->authorize('destroy', $id);
-        $id->delete();
+        $this->authorizeRole(UserRole::CITY_ADMIN->value);
+
+        $district->delete();
 
         return response()->json([
             'success' => true,
