@@ -396,7 +396,7 @@ class ReportUserAssignmentController extends Controller
             $message = <<<EOT
             *[SIPANDAI] Pembaruan Status Laporan*
 
-            Halo {$userName}👋,
+            Halo {$userName} 👋,
             Status laporan {$report->report_code} — "{$report->title}" berubah:
             {$oldStatusLabel} ➜ {$newStatusLabel} ({$update_at}).
 
