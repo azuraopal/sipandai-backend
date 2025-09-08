@@ -302,7 +302,7 @@ class ReportUserAssignmentController extends Controller
             DB::table('report_attachments')->insert([
                 'id' => Str::uuid()->toString(),
                 'report_id' => $report->id,
-                'purpose' => 'FIELD_RESULT',
+                'purpose' => 'COMPLETION_PROFF',
                 'file_url' => '/storage/' . $path,
                 'file_type' => $file->getMimeType(),
                 'created_at' => now(),
