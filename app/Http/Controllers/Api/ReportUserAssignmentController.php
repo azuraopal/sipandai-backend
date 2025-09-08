@@ -371,6 +371,12 @@ class ReportUserAssignmentController extends Controller
             'current_status' => $newStatus,
         ]);
 
+        if ($report->user_id) {
+            $userName = optional($report->user)->full_name;
+        } else {
+            $userName = 'Pelapor';
+        }
+
         $this->createHistory(
             $report,
             ActionReport::COMPLETE_REPORT->value,
@@ -382,16 +388,20 @@ class ReportUserAssignmentController extends Controller
         try {
             $whatsappService = new WhatsAppService();
 
+            $oldStatusLabel = ReportStatus::tryFrom($oldStatus)?->label() ?? $oldStatus;
+            $newStatusLabel = ReportStatus::tryFrom($newStatus)?->label() ?? $newStatus;
+
             $trackingUrl = "https://sipandai.ashtrath.me/report/{$report->report_code}";
 
             $message = <<<EOT
             *[SIPANDAI] Pembaruan Status Laporan*
 
-            Halo 👋,
+            Halo {$userName}👋,
             Status laporan {$report->report_code} — "{$report->title}" berubah:
-            {$oldStatus} ➜ {$newStatus} {$update_at}.
+            {$oldStatusLabel} ➜ {$newStatusLabel} ({$update_at}).
 
-            Catatan: {$validated['notes']}
+            Catatan:
+            > {$validated['notes']}
 
             Lihat detail & tindak lanjut:
             {$trackingUrl}
