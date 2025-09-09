@@ -361,15 +361,30 @@ class ReportController extends Controller
 
             DB::commit();
 
-            $finalReport = $report->load([
-                'attachments',
-                'statusHistories',
-            ]);
-
             return response()->json([
                 'success' => true,
                 'message' => 'Laporan berhasil dibuat.',
-                'data' => $finalReport,
+                'data' => [
+                    'id' => $report->id,
+                    'report_code' => $report->report_code,
+                    'title' => $report->title,
+                    'description' => $report->description,
+                    'address_detail' => $report->address_detail,
+                    'phone_number' => $report->phone_number,
+                    'coordinates' => $report->coordinates,
+                    'current_status' => $report->current_status,
+                    'created_at' => $report->created_at,
+                    'report_type' => $report->reportType?->name,
+                    'report_category' => $report->reportCategory?->name,
+                    'district' => $report->district?->name,
+                    'village' => $report->village?->name,
+                    'user' => [
+                        'id' => $report->user?->id,
+                        'full_name' => $report->user?->full_name,
+                        'email' => $report->user?->email,
+                        'profile_picture_url' => $report->user?->profile_picture_url,
+                    ],
+                ],
                 'errors' => null
             ], 201);
 
@@ -391,8 +406,6 @@ class ReportController extends Controller
             'reportCategory',
             'district',
             'village',
-            'attachments',
-            'statusHistories.user:id,full_name,role'
         ]);
 
         $mappedData = [
@@ -415,27 +428,6 @@ class ReportController extends Controller
                 'email' => $id->user->email,
                 'profile_picture_url' => $id->user->profile_picture_url,
             ],
-            'attachments' => $id->attachments->map(function ($attachment) {
-                return [
-                    'id' => $attachment->id,
-                    'file_url' => $attachment->file_url,
-                    'file_type' => $attachment->file_type,
-                    'purpose' => $attachment->purpose->label(),
-                ];
-            }),
-            'status_histories' => $id->statusHistories->map(function ($history) {
-                return [
-                    'id' => $history->id,
-                    'status' => $history->status->label(),
-                    'notes' => $history->notes,
-                    'created_at' => $history->created_at->format('Y-m-d H:i:s'),
-                    'user' => [
-                        'id' => $history->user->id,
-                        'full_name' => $history->user->full_name,
-                        'role' => $history->user->role,
-                    ],
-                ];
-            }),
         ];
 
         return response()->json([
@@ -445,4 +437,52 @@ class ReportController extends Controller
             'errors' => null
         ]);
     }
+
+    public function attachments($id)
+    {
+        $report = Report::with('attachments')->findOrFail($id);
+
+        $mappedAttachments = $report->attachments->map(function ($attachment) {
+            return [
+                'id' => $attachment->id,
+                'file_url' => $attachment->file_url,
+                'file_type' => $attachment->file_type,
+                'purpose' => $attachment->purpose->label(),
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Daftar lampiran berhasil diambil.',
+            'data' => $mappedAttachments,
+            'errors' => null
+        ]);
+    }
+
+    public function statusHistories($id)
+    {
+        $report = Report::with('statusHistories.user')->findOrFail($id);
+
+        $mappedHistories = $report->statusHistories->map(function ($history) {
+            return [
+                'id' => $history->id,
+                'status' => $history->status->label(),
+                'notes' => $history->notes,
+                'created_at' => $history->created_at->format('Y-m-d H:i:s'),
+                'user' => [
+                    'id' => $history->user?->id,
+                    'full_name' => $history->user?->full_name,
+                    'role' => $history->user?->role,
+                ],
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Riwayat status berhasil diambil.',
+            'data' => $mappedHistories,
+            'errors' => null
+        ]);
+    }
+
 }
