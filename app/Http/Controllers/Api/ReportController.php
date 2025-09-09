@@ -427,7 +427,7 @@ class ReportController extends Controller
                 return [
                     'id' => $history->id,
                     'status' => $history->status->label(),
-                    'description' => $history->description,
+                    'notes' => $history->notes,
                     'created_at' => $history->created_at->format('Y-m-d H:i:s'),
                     'user' => [
                         'id' => $history->user->id,

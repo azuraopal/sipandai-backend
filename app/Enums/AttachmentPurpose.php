@@ -11,7 +11,6 @@ enum AttachmentPurpose: string
         return match ($this) {
             self::INITIAL_EVIDENCE => 'Bukti Awal',
             self::COMPLETION_PROFF => 'Bukti Selesai',
-
         };
     }
 }

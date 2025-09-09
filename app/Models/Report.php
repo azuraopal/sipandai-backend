@@ -39,6 +39,7 @@ class Report extends Model
 
     protected $casts = [
         'current_status' => ReportStatus::class,
+        'purpose' => AttachmentPurpose::class,
     ];
 
     public function user(): BelongsTo

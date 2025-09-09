@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\ActionReport;
+use App\Enums\AttachmentPurpose;
 use App\Enums\ReportStatus;
 use App\Models\Report;
 use App\Models\ReportOpdAssignment;
@@ -302,7 +303,7 @@ class ReportUserAssignmentController extends Controller
             DB::table('report_attachments')->insert([
                 'id' => Str::uuid()->toString(),
                 'report_id' => $report->id,
-                'purpose' => 'COMPLETION_PROFF',
+                'purpose' => AttachmentPurpose::COMPLETION_PROFF->value,
                 'file_url' => '/storage/' . $path,
                 'file_type' => $file->getMimeType(),
                 'created_at' => now(),
@@ -333,11 +334,26 @@ class ReportUserAssignmentController extends Controller
         ]);
 
         $report = Report::findOrFail($validated['report_id']);
+
+        if ($report->current_status !== ReportStatus::PENDING_QA_REVIEW) {
+            throw ValidationException::withMessages([
+                'report_id' => [
+                    'Report hanya bisa di-complete jika status laporan sedang PENDING_QA_REVIEW.'
+                ],
+            ]);
+        }
+
         $report->update([
-            'status' => 'NEEDS_REVISION'
+            'current_status' => 'NEEDS_REVISION'
         ]);
 
-        $this->createHistory($report, 'REQUEST_REVISION', $validated['notes']);
+        $this->createHistory(
+            $report,
+            ActionReport::REQUEST_REVISION->value,
+            $validated['notes'],
+            null,
+            ReportStatus::NEEDS_REVISION->value
+        );
 
         return response()->json([
             'message' => 'Revision requested'
