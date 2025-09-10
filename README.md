@@ -950,6 +950,9 @@
       "email": "nopal@example.com",
       "profile_picture_url": "https://example.com/profile/nopal.png"
     }
+      },
+  "errors": null
+}
 ```
 
 ---
