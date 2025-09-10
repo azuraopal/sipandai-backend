@@ -15,8 +15,8 @@
 **Payload**
 ```json
 {
-  "full_name": "John Doe",
-  "email": "johndoe@example.com",
+  "full_name": "Nopal Ganteng",
+  "email": "marihitamkan@example.com",
   "password": "password123",
   "password_confirmation": "password123"
 }
@@ -42,7 +42,7 @@
 **Payload**
 ```json
 {
-  "email": "johndoe@example.com",
+  "email": "marihitamkan@example.com",
   "password": "password123"
 }
 ```
@@ -55,10 +55,10 @@
   "data": {
     "user": {
       "id": "uuid",
-      "full_name": "John Doe",
-      "email": "johndoe@example.com",
-      "role": "USER",
-      "role_label": "User",
+      "full_name": "Nopal Ready To Test",
+      "email": "marihitamkan@example.com",
+      "role": "CITIZEN",
+      "role_label": "Warga",
       "opd_id": null,
       "district_id": null,
       "profile_picture_url": null
@@ -79,7 +79,7 @@
 **Payload**
 ```json
 {
-  "email": "johndoe@example.com",
+  "email": "marihitamkan@example.com",
   "code": "123456"
 }
 ```
@@ -92,9 +92,9 @@
   "data": {
     "user": {
       "id": "uuid",
-      "full_name": "John Doe",
-      "email": "johndoe@example.com",
-      "role": "USER"
+      "full_name": "Nopal Ganteng",
+      "email": "marihitamkan@example.com",
+      "role": "CITIZEN"
     },
     "token": "sanctum_token_here"
   },
@@ -112,7 +112,7 @@
 **Payload**
 ```json
 {
-  "email": "johndoe@example.com"
+  "email": "marihitamkan@example.com"
 }
 ```
 
@@ -136,7 +136,7 @@
 **Payload**
 ```json
 {
-  "email": "johndoe@example.com"
+  "email": "marihitamkan@example.com"
 }
 ```
 
@@ -160,7 +160,7 @@
 **Payload**
 ```json
 {
-  "email": "johndoe@example.com",
+  "email": "marihitamkan@example.com",
   "code": "123456",
   "password": "newpassword123",
   "password_confirmation": "newpassword123"
@@ -195,10 +195,10 @@
   "data": {
     "user": {
       "id": "uuid",
-      "full_name": "John Doe",
-      "email": "johndoe@example.com",
-      "role": "USER",
-      "role_label": "User",
+      "full_name": "Nopal Ganteng",
+      "email": "marihitamkan@example.com",
+      "role": "CITIZEN",
+      "role_label": "Warga",
       "email_verified_at": "2025-09-10T12:34:56.000000Z"
     }
   },
@@ -220,8 +220,8 @@
 **Payload**
 ```json
 {
-  "full_name": "John Updated",
-  "email": "johnupdated@example.com",
+  "full_name": "Nopal Mau ITB",
+  "email": "marihitamkan@example.com",
   "profile_picture_url": "(file: jpg/png, max 2MB)"
 }
 ```
@@ -234,9 +234,9 @@
   "data": {
     "user": {
       "id": "uuid",
-      "full_name": "John Updated",
-      "email": "johnupdated@example.com",
-      "role": "USER",
+      "full_name": "Nopal Mau ITB",
+      "email": "marihitamkann@example.com",
+      "role": "CITIZEN",
       "profile_picture_url": "/storage/profile_pictures/abc.jpg"
     }
   },
