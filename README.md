@@ -3,9 +3,6 @@
 Base URL:
 /api/v1
 
-yaml
-Copy code
-
 ---
 
 ## 🔑 Authentication & User Management
@@ -13,10 +10,7 @@ Copy code
 ### 1. Register
 
 **Endpoint**
-POST /auth/register
 
-pgsql
-Copy code
 
 **Payload**
 
@@ -27,17 +21,17 @@ Copy code
   "password": "password123",
   "password_confirmation": "password123"
 }
+
 Response (201)
 
-json
-Copy code
 {
   "success": true,
   "message": "Registrasi berhasil. Silakan cek email Anda untuk kode verifikasi.",
   "data": null,
   "errors": null
 }
-2. Login
+
+### 1. Login
 Endpoint
 
 bash
