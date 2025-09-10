@@ -26,7 +26,7 @@ class WhatsAppService
         }
 
         if (!str_ends_with($phoneNumber, '@c.us')) {
-            $phoneNumber = preg_replace('/^0/', '62', $phoneNumber) . '@c.us';
+            $phoneNumber = preg_replace('/^(\+62|62|0)/', '62', $phoneNumber) . '@c.us';
         }
 
         try {
