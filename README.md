@@ -1,260 +1,296 @@
 # 📌 API Documentation
 
-Base URL:
-/api/v1
+**Base URL**  
+`/api/v1`
 
 ---
 
 ## 🔑 Authentication & User Management
 
-### 1. Register
+### 1. Register  
 
-Endpoint:
-POST /auth/register
+**Endpoint**  
+`POST /auth/register`  
 
-Payload:
+**Payload**
+```json
 {
-"full_name": "John Doe",
-"email": "johndoe@example.com",
-"password": "password123",
-"password_confirmation": "password123"
+  "full_name": "John Doe",
+  "email": "johndoe@example.com",
+  "password": "password123",
+  "password_confirmation": "password123"
 }
+```
 
-Response (201):
+**Response (201)**
+```json
 {
-"success": true,
-"message": "Registrasi berhasil. Silakan cek email Anda untuk kode verifikasi.",
-"data": null,
-"errors": null
+  "success": true,
+  "message": "Registrasi berhasil. Silakan cek email Anda untuk kode verifikasi.",
+  "data": null,
+  "errors": null
 }
+```
 
 ---
 
-### 2. Login
+### 2. Login  
 
-Endpoint:
-POST /auth/login
+**Endpoint**  
+`POST /auth/login`  
 
-Payload:
+**Payload**
+```json
 {
-"email": "johndoe@example.com",
-"password": "password123"
+  "email": "johndoe@example.com",
+  "password": "password123"
 }
+```
 
-Response (200):
+**Response (200)**
+```json
 {
-"success": true,
-"message": "User logged in successfully",
-"data": {
-"user": {
-"id": "uuid",
-"full_name": "John Doe",
-"email": "johndoe@example.com",
-"role": "USER",
-"role_label": "User",
-"opd_id": null,
-"district_id": null,
-"profile_picture_url": null
-},
-"token": "sanctum_token_here"
-},
-"errors": null
+  "success": true,
+  "message": "User logged in successfully",
+  "data": {
+    "user": {
+      "id": "uuid",
+      "full_name": "John Doe",
+      "email": "johndoe@example.com",
+      "role": "USER",
+      "role_label": "User",
+      "opd_id": null,
+      "district_id": null,
+      "profile_picture_url": null
+    },
+    "token": "sanctum_token_here"
+  },
+  "errors": null
 }
+```
 
 ---
 
-### 3. Verify Email
+### 3. Verify Email  
 
-Endpoint:
-POST /auth/verify-email
+**Endpoint**  
+`POST /auth/verify-email`  
 
-Payload:
+**Payload**
+```json
 {
-"email": "johndoe@example.com",
-"code": "123456"
+  "email": "johndoe@example.com",
+  "code": "123456"
 }
+```
 
-Response (200):
+**Response (200)**
+```json
 {
-"success": true,
-"message": "Email berhasil diverifikasi.",
-"data": {
-"user": {
-"id": "uuid",
-"full_name": "John Doe",
-"email": "johndoe@example.com",
-"role": "USER"
-},
-"token": "sanctum_token_here"
-},
-"errors": null
+  "success": true,
+  "message": "Email berhasil diverifikasi.",
+  "data": {
+    "user": {
+      "id": "uuid",
+      "full_name": "John Doe",
+      "email": "johndoe@example.com",
+      "role": "USER"
+    },
+    "token": "sanctum_token_here"
+  },
+  "errors": null
 }
+```
 
 ---
 
-### 4. Resend Verification Code
+### 4. Resend Verification Code  
 
-Endpoint:
-POST /auth/resend-verification
+**Endpoint**  
+`POST /auth/resend-verification`  
 
-Payload:
+**Payload**
+```json
 {
-"email": "johndoe@example.com"
+  "email": "johndoe@example.com"
 }
+```
 
-Response (200):
+**Response (200)**
+```json
 {
-"success": true,
-"message": "Kode verifikasi baru telah dikirim.",
-"data": null,
-"errors": null
+  "success": true,
+  "message": "Kode verifikasi baru telah dikirim.",
+  "data": null,
+  "errors": null
 }
+```
 
 ---
 
-### 5. Forgot Password
+### 5. Forgot Password  
 
-Endpoint:
-POST /auth/forgot-password
+**Endpoint**  
+`POST /auth/forgot-password`  
 
-Payload:
+**Payload**
+```json
 {
-"email": "johndoe@example.com"
+  "email": "johndoe@example.com"
 }
+```
 
-Response (200):
+**Response (200)**
+```json
 {
-"success": true,
-"message": "Jika email terdaftar, kode verifikasi telah dikirim ke email Anda.",
-"data": null,
-"errors": null
+  "success": true,
+  "message": "Jika email terdaftar, kode verifikasi telah dikirim ke email Anda.",
+  "data": null,
+  "errors": null
 }
+```
 
 ---
 
-### 6. Reset Password
+### 6. Reset Password  
 
-Endpoint:
-POST /auth/reset-password
+**Endpoint**  
+`POST /auth/reset-password`  
 
-Payload:
+**Payload**
+```json
 {
-"email": "johndoe@example.com",
-"code": "123456",
-"password": "newpassword123",
-"password_confirmation": "newpassword123"
+  "email": "johndoe@example.com",
+  "code": "123456",
+  "password": "newpassword123",
+  "password_confirmation": "newpassword123"
 }
+```
 
-Response (200):
+**Response (200)**
+```json
 {
-"success": true,
-"message": "Password berhasil direset.",
-"data": null,
-"errors": null
+  "success": true,
+  "message": "Password berhasil direset.",
+  "data": null,
+  "errors": null
 }
+```
 
 ---
 
-### 7. Get Profile (Me)
+### 7. Get Profile (Me)  
 
-Endpoint:
-GET /auth/me
+**Endpoint**  
+`GET /auth/me`  
 
-Headers:
-Authorization: Bearer <token>
+**Headers**  
+`Authorization: Bearer <token>`
 
-Response (200):
+**Response (200)**
+```json
 {
-"success": true,
-"message": "Data Profil Behasil Diambil",
-"data": {
-"user": {
-"id": "uuid",
-"full_name": "John Doe",
-"email": "johndoe@example.com",
-"role": "USER",
-"role_label": "User",
-"email_verified_at": "2025-09-10T12:34:56.000000Z"
+  "success": true,
+  "message": "Data Profil Behasil Diambil",
+  "data": {
+    "user": {
+      "id": "uuid",
+      "full_name": "John Doe",
+      "email": "johndoe@example.com",
+      "role": "USER",
+      "role_label": "User",
+      "email_verified_at": "2025-09-10T12:34:56.000000Z"
+    }
+  },
+  "errors": null
 }
-},
-"errors": null
-}
+```
 
 ---
 
-### 8. Update Profile
+### 8. Update Profile  
 
-Endpoint:
-PUT /auth/me
+**Endpoint**  
+`PUT /auth/me`  
 
-Headers:
-Authorization: Bearer <token>
-Content-Type: multipart/form-data
+**Headers**  
+- `Authorization: Bearer <token>`  
+- `Content-Type: multipart/form-data`
 
-Payload:
+**Payload**
+```json
 {
-"full_name": "John Updated",
-"email": "johnupdated@example.com",
-"profile_picture_url": (file: jpg/png, max 2MB)
+  "full_name": "John Updated",
+  "email": "johnupdated@example.com",
+  "profile_picture_url": "(file: jpg/png, max 2MB)"
 }
+```
 
-Response (200):
+**Response (200)**
+```json
 {
-"success": true,
-"message": "Profil berhasil diperbarui.",
-"data": {
-"user": {
-"id": "uuid",
-"full_name": "John Updated",
-"email": "johnupdated@example.com",
-"role": "USER",
-"profile_picture_url": "/storage/profile_pictures/abc.jpg"
+  "success": true,
+  "message": "Profil berhasil diperbarui.",
+  "data": {
+    "user": {
+      "id": "uuid",
+      "full_name": "John Updated",
+      "email": "johnupdated@example.com",
+      "role": "USER",
+      "profile_picture_url": "/storage/profile_pictures/abc.jpg"
+    }
+  },
+  "errors": null
 }
-},
-"errors": null
-}
+```
 
 ---
 
-### 9. Change Password
+### 9. Change Password  
 
-Endpoint:
-POST /auth/change-password
+**Endpoint**  
+`POST /auth/change-password`  
 
-Headers:
-Authorization: Bearer <token>
+**Headers**  
+`Authorization: Bearer <token>`
 
-Payload:
+**Payload**
+```json
 {
-"current_password": "oldpassword123",
-"new_password": "newpassword123",
-"new_password_confirmation": "newpassword123"
+  "current_password": "oldpassword123",
+  "new_password": "newpassword123",
+  "new_password_confirmation": "newpassword123"
 }
+```
 
-Response (200):
+**Response (200)**
+```json
 {
-"success": true,
-"message": "Password changed successfully",
-"data": null,
-"errors": null
+  "success": true,
+  "message": "Password changed successfully",
+  "data": null,
+  "errors": null
 }
+```
 
 ---
 
-### 10. Logout
+### 10. Logout  
 
-Endpoint:
-POST /auth/logout
+**Endpoint**  
+`POST /auth/logout`  
 
-Headers:
-Authorization: Bearer <token>
+**Headers**  
+`Authorization: Bearer <token>`
 
-Response (200):
+**Response (200)**
+```json
 {
-"success": true,
-"message": "Logged out",
-"data": null,
-"errors": null
+  "success": true,
+  "message": "Logged out",
+  "data": null,
+  "errors": null
 }
+```
 
 ---
