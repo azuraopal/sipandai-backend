@@ -295,7 +295,7 @@
 
 ---
 
-## 🏢 OPD Management
+## 🤷‍♂️ OPD Management
 
 ### 1. List OPD
 **Endpoint:**  
