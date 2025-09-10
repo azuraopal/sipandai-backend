@@ -906,8 +906,8 @@
 ```json
 
 {
-  "type_id": "uuid",
-  "category_id": "uuid",
+  "type_id": 1,
+  "category_id": 2,
   "title": "Laporan Kinerja Tim",
   "description": "Detail laporan kinerja tim bulan ini",
   "district_id": "3201",
