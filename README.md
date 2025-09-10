@@ -904,7 +904,7 @@
 
 **Payload:**
 ```json
-{
+
 {
   "type_id": 1,
   "category_id": 2,
@@ -922,7 +922,7 @@
   ]
 }
 
-}
+
 ```
 
 **Response (201):**
