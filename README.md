@@ -15,7 +15,7 @@
 **Payload**
 ```json
 {
-  "full_name": "Nopal Ganteng",
+  "full_name": "Nopal Mau ITB",
   "email": "marihitamkan@example.com",
   "password": "password123",
   "password_confirmation": "password123"
