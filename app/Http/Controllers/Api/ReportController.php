@@ -32,8 +32,6 @@ class ReportController extends Controller
                 'reportCategory:id,name',
                 'district:code,name',
                 'village:code,name',
-                'attachments:report_id,file_url,file_type,purpose',
-                'statusHistories.user:id,full_name'
             ])
             ->when($search, function ($query, $search) {
                 return $query->where('title', 'LIKE', "%{$search}%");
@@ -65,23 +63,6 @@ class ReportController extends Controller
                     'email' => $report->user->email,
                     'profile_picture_url' => $report->user->profile_picture_url,
                 ],
-                'attachments' => $report->attachments->map(function ($attachment) {
-                    return [
-                        'file_url' => $attachment->file_url,
-                        'file_type' => $attachment->file_type,
-                        'purpose' => $attachment->purpose,
-                    ];
-                }),
-                'status_histories' => $report->statusHistories->map(function ($history) {
-                    return [
-                        'status' => optional($history->status)->label(),
-                        'notes' => $history->notes,
-                        'created_at' => $history->created_at,
-                        'user' => [
-                            'full_name' => optional($history->user)->full_name,
-                        ],
-                    ];
-                }),
             ];
         });
 
