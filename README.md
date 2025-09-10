@@ -876,7 +876,7 @@
         "district": "Kecamatan Bandung Wetan",
         "village": "Kelurahan Tamansari",
         "user": {
-          "id": "uuid_user",
+          "id": "uuid",
           "full_name": "Nopal Mau ITB",
           "email": "nopal@example.com",
           "profile_picture_url": "https://example.com/profile/nopal.png"
@@ -906,8 +906,8 @@
 ```json
 
 {
-  "type_id": 1,
-  "category_id": 2,
+  "type_id": "uuid",
+  "category_id": "uuid",
   "title": "Laporan Kinerja Tim",
   "description": "Detail laporan kinerja tim bulan ini",
   "district_id": "3201",
@@ -945,7 +945,7 @@
     "district": "Kecamatan Bandung Wetan",
     "village": "Kelurahan Tamansari",
     "user": {
-      "id": "uuid_user",
+      "id": "uuid",
       "full_name": "Nopal Mau ITB",
       "email": "nopal@example.com",
       "profile_picture_url": "https://example.com/profile/nopal.png"
@@ -982,7 +982,7 @@
     "district": "Kecamatan Bandung Wetan",
     "village": "Kelurahan Tamansari",
     "user": {
-      "id": "uuid_user",
+      "id": "uuid",
       "full_name": "Nopal Mau ITB",
       "email": "nopal@example.com",
       "profile_picture_url": "https://example.com/profile/nopal.png"
