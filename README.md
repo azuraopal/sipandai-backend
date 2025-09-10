@@ -1,61 +1,300 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 📌 API Documentation
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Base URL:
+/api/v1
 
-## About Laravel
+yaml
+Copy code
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🔑 Authentication & User Management
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 1. Register
 
-## Learning Laravel
+**Endpoint**
+POST /auth/register
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+pgsql
+Copy code
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+**Payload**
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```json
+{
+  "full_name": "John Doe",
+  "email": "johndoe@example.com",
+  "password": "password123",
+  "password_confirmation": "password123"
+}
+Response (201)
 
-## Laravel Sponsors
+json
+Copy code
+{
+  "success": true,
+  "message": "Registrasi berhasil. Silakan cek email Anda untuk kode verifikasi.",
+  "data": null,
+  "errors": null
+}
+2. Login
+Endpoint
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+bash
+Copy code
+POST /auth/login
+Payload
 
-### Premium Partners
+json
+Copy code
+{
+  "email": "johndoe@example.com",
+  "password": "password123"
+}
+Response (200)
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+json
+Copy code
+{
+  "success": true,
+  "message": "User logged in successfully",
+  "data": {
+    "user": {
+      "id": "uuid",
+      "full_name": "John Doe",
+      "email": "johndoe@example.com",
+      "role": "USER",
+      "role_label": "User",
+      "opd_id": null,
+      "district_id": null,
+      "profile_picture_url": null
+    },
+    "token": "sanctum_token_here"
+  },
+  "errors": null
+}
+3. Verify Email
+Endpoint
 
-## Contributing
+bash
+Copy code
+POST /auth/verify-email
+Payload
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+json
+Copy code
+{
+  "email": "johndoe@example.com",
+  "code": "123456"
+}
+Response (200)
 
-## Code of Conduct
+json
+Copy code
+{
+  "success": true,
+  "message": "Email berhasil diverifikasi.",
+  "data": {
+    "user": {
+      "id": "uuid",
+      "full_name": "John Doe",
+      "email": "johndoe@example.com",
+      "role": "USER"
+    },
+    "token": "sanctum_token_here"
+  },
+  "errors": null
+}
+4. Resend Verification Code
+Endpoint
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+bash
+Copy code
+POST /auth/resend-verification
+Payload
 
-## Security Vulnerabilities
+json
+Copy code
+{
+  "email": "johndoe@example.com"
+}
+Response (200)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+json
+Copy code
+{
+  "success": true,
+  "message": "Kode verifikasi baru telah dikirim.",
+  "data": null,
+  "errors": null
+}
+5. Forgot Password
+Endpoint
 
-## License
+bash
+Copy code
+POST /auth/forgot-password
+Payload
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+json
+Copy code
+{
+  "email": "johndoe@example.com"
+}
+Response (200)
+
+json
+Copy code
+{
+  "success": true,
+  "message": "Jika email terdaftar, kode verifikasi telah dikirim ke email Anda.",
+  "data": null,
+  "errors": null
+}
+6. Reset Password
+Endpoint
+
+pgsql
+Copy code
+POST /auth/reset-password
+Payload
+
+json
+Copy code
+{
+  "email": "johndoe@example.com",
+  "code": "123456",
+  "password": "newpassword123",
+  "password_confirmation": "newpassword123"
+}
+Response (200)
+
+json
+Copy code
+{
+  "success": true,
+  "message": "Password berhasil direset.",
+  "data": null,
+  "errors": null
+}
+7. Get Profile (Me)
+Endpoint
+
+vbnet
+Copy code
+GET /auth/me
+Headers
+
+makefile
+Copy code
+Authorization: Bearer <token>
+Response (200)
+
+json
+Copy code
+{
+  "success": true,
+  "message": "Data Profil Behasil Diambil",
+  "data": {
+    "user": {
+      "id": "uuid",
+      "full_name": "John Doe",
+      "email": "johndoe@example.com",
+      "role": "USER",
+      "role_label": "User",
+      "email_verified_at": "2025-09-10T12:34:56.000000Z"
+    }
+  },
+  "errors": null
+}
+8. Update Profile
+Endpoint
+
+bash
+Copy code
+PUT /auth/me
+Headers
+
+makefile
+Copy code
+Authorization: Bearer <token>
+Content-Type: multipart/form-data
+Payload
+
+json
+Copy code
+{
+  "full_name": "John Updated",
+  "email": "johnupdated@example.com",
+  "profile_picture_url": (file: jpg/png, max 2MB)
+}
+Response (200)
+
+json
+Copy code
+{
+  "success": true,
+  "message": "Profil berhasil diperbarui.",
+  "data": {
+    "user": {
+      "id": "uuid",
+      "full_name": "John Updated",
+      "email": "johnupdated@example.com",
+      "role": "USER",
+      "profile_picture_url": "/storage/profile_pictures/abc.jpg"
+    }
+  },
+  "errors": null
+}
+9. Change Password
+Endpoint
+
+bash
+Copy code
+POST /auth/change-password
+Headers
+
+makefile
+Copy code
+Authorization: Bearer <token>
+Payload
+
+json
+Copy code
+{
+  "current_password": "oldpassword123",
+  "new_password": "newpassword123",
+  "new_password_confirmation": "newpassword123"
+}
+Response (200)
+
+json
+Copy code
+{
+  "success": true,
+  "message": "Password changed successfully",
+  "data": null,
+  "errors": null
+}
+10. Logout
+Endpoint
+
+bash
+Copy code
+POST /auth/logout
+Headers
+
+makefile
+Copy code
+Authorization: Bearer <token>
+Response (200)
+
+json
+Copy code
+{
+  "success": true,
+  "message": "Logged out",
+  "data": null,
+  "errors": null
+}
+```
