@@ -31,6 +31,8 @@ Response (201)
   "errors": null
 }
 
+```
+
 ### 1. Login
 Endpoint
 
@@ -291,4 +293,4 @@ Copy code
   "data": null,
   "errors": null
 }
-```
+
