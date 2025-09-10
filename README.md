@@ -858,19 +858,41 @@
 ```json
 {
   "success": true,
-  "message": "Daftar laporan berhasil diambil",
-  "data": [
-    {
-      "id": "uuid",
-      "title": "Laporan Keuangan Q1",
-      "type": "Laporan Tahunan",
-      "category": "Keuangan",
-      "created_by": "Nopal Mau ITB",
-      "status": "PENDING_VERIFICATION"
+  "message": "Daftar laporan berhasil diambil.",
+  "data": {
+    "items": [
+      {
+        "id": "uuid",
+        "report_code": "RE-00001",
+        "title": "Laporan Keuangan Q1",
+        "description": "Detail laporan keuangan triwulan 1",
+        "address_detail": "Jl. Merdeka No. 45",
+        "phone_number": "081234567890",
+        "coordinates": "POINT(107.60981 -6.914744)",
+        "current_status": "PENDING_VERIFICATION",
+        "created_at": "2025-09-10T14:21:33.000000Z",
+        "report_type": "Laporan Tahunan",
+        "report_category": "Keuangan",
+        "district": "Kecamatan Bandung Wetan",
+        "village": "Kelurahan Tamansari",
+        "user": {
+          "id": "uuid_user",
+          "full_name": "Nopal Mau ITB",
+          "email": "nopal@example.com",
+          "profile_picture_url": "https://example.com/profile/nopal.png"
+        },
+      }
+    ],
+    "meta": {
+      "current_page": 1,
+      "last_page": 5,
+      "per_page": 10,
+      "total": 45
     }
-  ],
+  },
   "errors": null
 }
+
 ```
 
 ---
@@ -941,18 +963,31 @@
 ```json
 {
   "success": true,
-  "message": "Detail laporan berhasil diambil",
+  "message": "Detail laporan berhasil diambil.",
   "data": {
     "id": "uuid",
+    "report_code": "RE-00001",
     "title": "Laporan Kinerja Tim",
-    "type": "Laporan Bulanan",
-    "category": "Kinerja",
-    "content": "Detail laporan kinerja tim bulan ini",
-    "created_by": "Nopal Mau ITB",
-    "status": "PENDING_VERIFICATION"
+    "description": "Detail laporan kinerja tim bulan ini",
+    "address_detail": "Jl. Merdeka No. 45",
+    "phone_number": "081234567890",
+    "coordinates": "POINT(107.60981 -6.914744)",
+    "current_status": "PENDING_VERIFICATION",
+    "created_at": "2025-09-10T14:21:33.000000Z",
+    "report_type": "Laporan Bulanan",
+    "report_category": "Kinerja",
+    "district": "Kecamatan Bandung Wetan",
+    "village": "Kelurahan Tamansari",
+    "user": {
+      "id": "uuid_user",
+      "full_name": "Nopal Mau ITB",
+      "email": "nopal@example.com",
+      "profile_picture_url": "https://example.com/profile/nopal.png"
+    }
   },
   "errors": null
 }
+
 ```
 
 ---
