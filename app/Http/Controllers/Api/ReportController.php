@@ -272,7 +272,7 @@ class ReportController extends Controller
             'district_id' => 'required|string|exists:districts,code',
             'village_id' => 'required|string|exists:villages,code',
             'address_detail' => 'required|string',
-            'phone_number' => 'required|string|max:15',
+            'phone_number' => 'required|string|max:20',
             'latitude' => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
             'attachments' => 'required|min:1',
