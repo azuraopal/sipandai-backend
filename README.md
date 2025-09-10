@@ -636,3 +636,323 @@
   "errors": null
 }
 ```
+
+## 🗂 Report Types
+
+### 1. Get All Report Types
+
+**Endpoint:**  
+`GET /report-types`
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Daftar tipe laporan berhasil diambil",
+  "data": [
+    {
+      "id": "uuid",
+      "name": "Laporan Tahunan",
+      "description": "Laporan tahunan untuk monitoring kinerja"
+    },
+    {
+      "id": "uuid",
+      "name": "Laporan Bulanan",
+      "description": "Laporan bulanan kegiatan rutin"
+    }
+  ],
+  "errors": null
+}
+```
+
+---
+
+### 2. Create Report Type
+
+**Endpoint:**  
+`POST /report-types`
+
+**Payload:**
+```json
+{
+  "name": "Laporan Mingguan",
+  "description": "Laporan mingguan untuk progress pekerjaan"
+}
+```
+
+**Response (201):**
+```json
+{
+  "success": true,
+  "message": "Report type berhasil dibuat",
+  "data": {
+    "id": "uuid",
+    "name": "Laporan Mingguan",
+    "description": "Laporan mingguan untuk progress pekerjaan"
+  },
+  "errors": null
+}
+```
+
+---
+
+### 3. Update Report Type
+
+**Endpoint:**  
+`PUT /report-types/{id}`
+
+**Payload:**
+```json
+{
+  "name": "Laporan Mingguan Updated",
+  "description": "Update deskripsi laporan mingguan"
+}
+```
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Report type berhasil diperbarui",
+  "data": {
+    "id": "uuid",
+    "name": "Laporan Mingguan Updated",
+    "description": "Update deskripsi laporan mingguan"
+  },
+  "errors": null
+}
+```
+
+---
+
+### 4. Delete Report Type
+
+**Endpoint:**  
+`DELETE /report-types/{id}`
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Report type berhasil dihapus",
+  "data": null,
+  "errors": null
+}
+```
+
+---
+
+## 🗂 Report Categories
+
+### 1. Get All Report Categories
+
+**Endpoint:**  
+`GET /report-categories`
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Daftar kategori laporan berhasil diambil",
+  "data": [
+    {
+      "id": "uuid",
+      "name": "Keuangan",
+      "description": "Kategori laporan terkait keuangan"
+    },
+    {
+      "id": "uuid",
+      "name": "Kinerja",
+      "description": "Kategori laporan terkait kinerja"
+    }
+  ],
+  "errors": null
+}
+```
+
+---
+
+### 2. Create Report Category
+
+**Endpoint:**  
+`POST /report-categories`
+
+**Payload:**
+```json
+{
+  "name": "Operasional",
+  "description": "Kategori laporan operasional"
+}
+```
+
+**Response (201):**
+```json
+{
+  "success": true,
+  "message": "Report category berhasil dibuat",
+  "data": {
+    "id": "uuid",
+    "name": "Operasional",
+    "description": "Kategori laporan operasional"
+  },
+  "errors": null
+}
+```
+
+---
+
+### 3. Update Report Category
+
+**Endpoint:**  
+`PUT /report-categories/{id}`
+
+**Payload:**
+```json
+{
+  "name": "Operasional Updated",
+  "description": "Update kategori laporan operasional"
+}
+```
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Report category berhasil diperbarui",
+  "data": {
+    "id": "uuid",
+    "name": "Operasional Updated",
+    "description": "Update kategori laporan operasional"
+  },
+  "errors": null
+}
+```
+
+---
+
+### 4. Delete Report Category
+
+**Endpoint:**  
+`DELETE /report-categories/{id}`
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Report category berhasil dihapus",
+  "data": null,
+  "errors": null
+}
+```
+
+---
+
+## 📝 Reports
+
+### 1. Get All Reports
+
+**Endpoint:**  
+`GET /reports`
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Daftar laporan berhasil diambil",
+  "data": [
+    {
+      "id": "uuid",
+      "title": "Laporan Keuangan Q1",
+      "type": "Laporan Tahunan",
+      "category": "Keuangan",
+      "created_by": "Nopal Mau ITB",
+      "status": "PENDING_VERIFICATION"
+    }
+  ],
+  "errors": null
+}
+```
+
+---
+
+### 2. Create Report
+
+**Endpoint:**  
+`POST /reports`
+
+**Payload:**
+```json
+{
+{
+  "type_id": 1,
+  "category_id": 2,
+  "title": "Laporan Kinerja Tim",
+  "description": "Detail laporan kinerja tim bulan ini",
+  "district_id": "3201",
+  "village_id": "320101",
+  "address_detail": "Jl. Merdeka No. 45",
+  "phone_number": "081234567890",
+  "latitude": -6.914744,
+  "longitude": 107.60981,
+  "attachments": [
+    "file1.jpg",
+    "file2.png"
+  ]
+}
+
+}
+```
+
+**Response (201):**
+```json
+{
+  "success": true,
+  "message": "Laporan berhasil dibuat.",
+  "data": {
+    "id": "uuid",
+    "report_code": "RE-00001",
+    "title": "Laporan Kinerja Tim",
+    "description": "Detail laporan kinerja tim bulan ini",
+    "address_detail": "Jl. Merdeka No. 45",
+    "phone_number": "081234567890",
+    "coordinates": "POINT(107.60981 -6.914744)",
+    "current_status": "PENDING_VERIFICATION",
+    "created_at": "2025-09-10T14:21:33.000000Z",
+    "report_type": "Laporan Bulanan",
+    "report_category": "Kinerja",
+    "district": "Kecamatan Bandung Wetan",
+    "village": "Kelurahan Tamansari",
+    "user": {
+      "id": "uuid_user",
+      "full_name": "Nopal Mau ITB",
+      "email": "nopal@example.com",
+      "profile_picture_url": "https:
+
+```
+
+---
+
+### 3. Get Report Detail
+
+**Endpoint:**  
+`GET /reports/{id}`
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Detail laporan berhasil diambil",
+  "data": {
+    "id": "uuid",
+    "title": "Laporan Kinerja Tim",
+    "type": "Laporan Bulanan",
+    "category": "Kinerja",
+    "content": "Detail laporan kinerja tim bulan ini",
+    "created_by": "Nopal Mau ITB",
+    "status": "PENDING_VERIFICATION"
+  },
+  "errors": null
+}
+```
+
+---
