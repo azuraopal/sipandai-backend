@@ -270,7 +270,7 @@ class ReportController extends Controller
 
         $user = Auth::guard('sanctum')->user();
 
-        if (!$user) {
+        if ($user) {
             $this->authorize('create', Report::class);
         } else {
             $phoneNumber = $request->phone_number;
