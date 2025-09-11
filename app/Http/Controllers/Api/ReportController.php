@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Enums\AttachmentPurpose;
 use App\Enums\ReportStatus;
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Models\Report;
 use App\Services\WhatsAppService;
@@ -274,7 +275,14 @@ class ReportController extends Controller
         $user = Auth::guard('sanctum')->user();
 
         if ($user) {
-            $this->authorize('create', Report::class);
+
+            if ($user->role !== UserRole::CITIZEN) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Hanya pengguna dengan role CITIZEN yang dapat membuat laporan.',
+                ], 403);
+            }
+
         } else {
             $phoneNumber = $request->phone_number;
             $token = DB::table('submit_report_tokens')
@@ -296,7 +304,6 @@ class ReportController extends Controller
                     'requires_otp' => true,
                 ], 401);
             }
-
         }
 
         try {
