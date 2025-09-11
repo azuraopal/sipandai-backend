@@ -289,7 +289,7 @@ class ReportController extends Controller
                 ], 401);
             }
 
-            if(!is_null($token->token_hash)) {
+            if (!is_null($token->token_hash)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Nomor telepon anda belum terverifikasi. Silakan verifikasi nomor telepon anda terlebih dahulu.',
