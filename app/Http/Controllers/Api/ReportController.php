@@ -58,12 +58,12 @@ class ReportController extends Controller
                 'report_category' => optional($report->reportCategory)->name,
                 'district' => optional($report->district)->name,
                 'village' => optional($report->village)->name,
-                'user' => [
+                'user' => $report->user ? [
                     'id' => $report->user->id,
                     'full_name' => $report->user->full_name,
                     'email' => $report->user->email,
                     'profile_picture_url' => $report->user->profile_picture_url,
-                ],
+                ] : null,
             ];
         });
 
