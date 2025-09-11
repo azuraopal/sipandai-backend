@@ -994,3 +994,138 @@
 ```
 
 ---
+
+## 📝 Report Assigments
+
+### Report User Assigment
+
+#### 1. Dispotion Report
+
+**Endpoint:**  
+`localhost:8000/api/v1/report/submit`
+
+**Payload:**
+```json
+{
+  "action": "DISPOSITION_REPORT",
+  "report_id": "019938c3-d2b1-73c1-9890-c9397441c6e4",
+  "opd_id": "d1c292b8-e1fc-4fb4-983c-7d4b39b157b8",
+  "notes": "Laporan didisposisikan ke OPD terkait"
+}
+```
+
+**Response (200):**
+```json
+{
+    "message": "Laporan telah diserahkan ke OPD"
+}
+```
+
+#### 2. Assign Field Officer
+**Endpoint:**  
+`localhost:8000/api/v1/report/submit`
+
+**Payload:**
+```json
+{
+  "action": "ASSIGN_FIELD_OFFICER",
+  "report_id": "019938c3-d2b1-73c1-9890-c9397441c6e4",
+  "officer_id": "c2f94973-95fb-4354-961e-1e967ad62b23",
+  "notes": "Petugas lapangan ditugaskan untuk melakukan perbaikan"
+}
+```
+
+**Response (200):**
+```json
+{
+    "message": "Petugas lapangan berhasil ditugaskan"
+}
+```
+
+#### 3. Verify Intitial
+
+**Endpoint:**  
+`localhost:8000/api/v1/report/submit`
+
+**Payload:**
+```json
+{
+  "action": "VERIFY_INITIAL",
+  "report_id": "019938c3-d2b1-73c1-9890-c9397441c6e4",
+  "notes": "OPD mulai melakukan verifikasi awal"
+}
+```
+
+**Response (200):**
+```json
+{
+    "message": "Laporan verifikasi awal telah dilakukan dan disetujui"
+}
+```
+
+#### 4. SUbmit Field Result
+
+**Endpoint:**  
+`localhost:8000/api/v1/report/submit`
+
+**Payload:**
+```json
+{
+  "action": "VERIFY_INITIAL",
+  "report_id": "019938c3-d2b1-73c1-9890-c9397441c6e4",
+  "notes": "OPD mulai melakukan verifikasi awal",
+  "attachments": [
+    "Dokumen Equity ELO_BANTEN_1_24082025.jpg"
+  ]
+}
+```
+
+**Response (200):**
+```json
+{
+    "success": true,
+    "message": "Field result submitted, attachments saved, and assignment closed"
+}
+```
+
+#### 5. Completed Report
+
+**Endpoint:**  
+`localhost:8000/api/v1/report/submit`
+
+**Payload:**
+```json
+{
+  "action": "COMPLETE_REPORT",
+  "report_id": "019938c3-d2b1-73c1-9890-c9397441c6e4",
+  "notes": "Sudah Diperbaiki"
+}
+```
+
+**Response (200):**
+```json
+{
+    "message": "Report completed & notification sent"
+}
+```
+
+#### 6. Needs Revision
+
+**Endpoint:**  
+`localhost:8000/api/v1/report/submit`
+
+**Payload:**
+```json
+{
+  "action": "REQUEST_REVISION",
+  "report_id": "019938c3-d2b1-73c1-9890-c9397441c6e4",
+  "notes": "Ga Benar"
+}
+```
+
+**Response (200):**
+```json
+{
+    "message": "Revision requested"
+}
+```
