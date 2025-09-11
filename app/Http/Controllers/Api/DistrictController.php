@@ -27,7 +27,7 @@ class DistrictController extends Controller
             ], 403));
         }
     }
-    
+
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
