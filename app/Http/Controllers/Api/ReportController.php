@@ -167,7 +167,10 @@ class ReportController extends Controller
 
         DB::table('submit_report_tokens')
             ->where('phone_number', $request->phone_number)
-            ->delete();
+            ->update([
+                'token_hash' => null,
+                'updated_at' => now(),
+            ]);
 
         return response()->json([
             'success' => true,
@@ -274,17 +277,26 @@ class ReportController extends Controller
             $this->authorize('create', Report::class);
         } else {
             $phoneNumber = $request->phone_number;
-            $tokenExists = DB::table('submit_report_tokens')
+            $token = DB::table('submit_report_tokens')
                 ->where('phone_number', $phoneNumber)
-                ->exists();
+                ->first();
 
-            if ($tokenExists) {
+            if (!$token) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Nomor telepon anda belum teverifikasi. Silakan verifikasi nomor telepon anda terlebih dahulu.',
+                    'message' => 'Nomor telepon anda belum pernah Request OTP. Silakan request OTP terlebih dahulu.',
                     'requires_otp' => true,
                 ], 401);
             }
+
+            if(!is_null($token->token_hash)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Nomor telepon anda belum terverifikasi. Silakan verifikasi nomor telepon anda terlebih dahulu.',
+                    'requires_otp' => true,
+                ], 401);
+            }
+
         }
 
         try {
