@@ -162,6 +162,7 @@ class ReportUserAssignmentController extends Controller
             null,
             ReportStatus::NEEDS_REVIEW->value
         );
+
         return response()->json([
             'message' => 'Further review requested'
         ]);
