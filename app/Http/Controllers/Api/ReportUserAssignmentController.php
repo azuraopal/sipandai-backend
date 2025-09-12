@@ -151,8 +151,20 @@ class ReportUserAssignmentController extends Controller
             ]);
         }
 
+        $lastDisposition = ReportOpdAssignment::where('report_id', $report->id)
+            ->latest('assigned_at')
+            ->first();
+
+        if (!$lastDisposition) {
+            throw ValidationException::withMessages([
+                'report_id' => ['Tidak ditemukan disposisi dari kecamatan untuk laporan ini.'],
+            ]);
+        }
+
+
         $report->update([
             'current_status' => ReportStatus::NEEDS_REVIEW->value,
+            'current_opd_id' => null,
         ]);
 
         $this->createHistory(
