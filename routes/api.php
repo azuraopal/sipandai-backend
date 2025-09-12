@@ -67,8 +67,6 @@ Route::prefix('v1')->group(function () {
             Route::get('{id}/attachments', [ReportController::class, 'attachments']);
             Route::get('{id}/status-history', [ReportController::class, 'statusHistories']);
 
-            Route::post('/submit', [ReportUserAssignmentController::class, 'handle']);
-
             Route::prefix('/types')->group(function () {
                 Route::post('/', [ReportTypeController::class, 'store']);
                 Route::put('/{id}', [ReportTypeController::class, 'update']);
@@ -77,6 +75,8 @@ Route::prefix('v1')->group(function () {
                 Route::post('/{id}/categories', [ReportCategoryController::class, 'store']);
                 Route::put('/{id}/categories/{category}', [ReportCategoryController::class, 'update']);
                 Route::delete('/{id}/categories/{category}', [ReportCategoryController::class, 'destroy']);
+
+                Route::post('/submit', [ReportUserAssignmentController::class, 'handle']);
             });
         });
     });
