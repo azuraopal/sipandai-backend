@@ -142,12 +142,26 @@ class ReportUserAssignmentController extends Controller
         ]);
 
         $report = Report::findOrFail($validated['report_id']);
+
+        $lastStatus = $this->getLatestStatus($report->id);
+
+        if ($lastStatus !== ReportStatus::PENDING_VERIFICATION) {
+            throw ValidationException::withMessages([
+                'report_id' => ['Laporan hanya bisa diverifikasi jika status terakhir masih PENDING_VERIFICATION.'],
+            ]);
+        }
+
         $report->update([
-            'status' => 'NEEDS_REVIEW'
+            'current_status' => ReportStatus::NEEDS_REVIEW->value,
         ]);
 
-        $this->createHistory($report, 'REQUEST_FURTHER_REVIEW', $validated['notes']);
-
+        $this->createHistory(
+            $report,
+            ActionReport::REQUEST_FURTHER_REVIEW->value,
+            $validated['notes'],
+            null,
+            ReportStatus::NEEDS_REVIEW->value
+        );
         return response()->json([
             'message' => 'Further review requested'
         ]);
