@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Enums\ActionReport;
 use App\Enums\AttachmentPurpose;
 use App\Enums\ReportStatus;
+use App\Enums\UserRole;
 use App\Models\Report;
 use App\Models\ReportOpdAssignment;
 use App\Models\ReportStatusHistory;
@@ -190,9 +191,47 @@ class ReportUserAssignmentController extends Controller
         ]);
 
         $report = Report::findOrFail($validated['report_id']);
-        $report->update(['status' => 'APPROVED_BY_DISTRICT']);
 
-        $this->createHistory($report, 'APPROVE_DISTRICT', $validated['notes']);
+        $lastStatus = $this->getLatestStatus($report->id);
+
+        if ($lastStatus !== ReportStatus::NEEDS_REVIEW) {
+            throw ValidationException::withMessages([
+                'report_id' => ['Laporan hanya bisa diverifikasi jika status terakhir masih NEEDS_REVIEW.'],
+            ]);
+        }
+
+        $lastDisposition = ReportOpdAssignment::where('report_id', $report->id)
+            ->latest('assigned_at')
+            ->first();
+
+        if (!$lastDisposition) {
+            throw ValidationException::withMessages([
+                'report_id' => ['Laporan ini belum pernah didisposisi ke OPD.'],
+            ]);
+        }
+
+        $opdAdmin = User::where('opd_id', $lastDisposition->opd_id)
+            ->where('role', UserRole::OPD_ADMIN->value)
+            ->first();
+
+        if (!$opdAdmin) {
+            throw ValidationException::withMessages([
+                'report_id' => ['Tidak ditemukan OPD Admin untuk OPD ini.'],
+            ]);
+        }
+
+        $report->update([
+            'current_status' => ReportStatus::APPROVED->value,
+            'current_opd_id' => $opdAdmin->id,
+        ]);
+
+        $this->createHistory(
+            $report,
+            ActionReport::APPROVE_DISTRICT->value,
+            $validated['notes'],
+            null,
+            ReportStatus::APPROVED->value
+        );
 
         return response()->json([
             'message' => 'Report approved by district'
@@ -209,16 +248,62 @@ class ReportUserAssignmentController extends Controller
         ]);
 
         $report = Report::findOrFail($validated['report_id']);
+
+        $oldStatus = $report->current_status->value ?? $report->current_status;
+        $newStatus = ReportStatus::REJECTED->value;
+        $update_at = now()->toDateTimeString();
+
         $report->update([
-            'status' => 'REJECTED'
+            'current_status' => $newStatus,
         ]);
 
-        $this->createHistory($report, 'REJECT_DISTRICT', $validated['notes']);
+        $userName = $report->user_id ? optional($report->user)->full_name : 'Pelapor';
+
+        $this->createHistory(
+            $report,
+            ActionReport::REJECT_DISTRICT->value,
+            $validated['notes'],
+            null,
+            $newStatus
+        );
+
+        try {
+            $whatsappService = new WhatsAppService();
+
+            $oldStatusLabel = ReportStatus::tryFrom($oldStatus)?->label() ?? $oldStatus;
+            $newStatusLabel = ReportStatus::tryFrom($newStatus)?->label() ?? $newStatus;
+
+            $trackingUrl = "https://sipandai.ashtrath.me/report/{$report->report_code}";
+
+            $message = <<<EOT
+            *[SIPANDAI] Pembaruan Status Laporan*
+
+            Halo {$userName} 👋,
+            Status laporan {$report->report_code} — "{$report->title}" berubah:
+            {$oldStatusLabel} ➜ {$newStatusLabel} ({$update_at}).
+
+            Catatan:
+            > {$validated['notes']}
+
+            Lihat detail & tindak lanjut:
+            {$trackingUrl}
+
+            Kode Laporan: *{$report->report_code}* . Simpan untuk cek status.
+            EOT;
+
+            if (!empty($report->phone_number)) {
+                $whatsappService->sendMessage($report->phone_number, $message);
+            }
+
+        } catch (\Exception $e) {
+            Log::error("Gagal mengirim notifikasi WhatsApp ke {$report->phone_number}: " . $e->getMessage());
+        }
 
         return response()->json([
-            'message' => 'Report rejected by district'
+            'message' => 'Report rejected by district & notification sent'
         ]);
     }
+
 
     private function assignFieldOfficer(Request $request)
     {
@@ -246,8 +331,14 @@ class ReportUserAssignmentController extends Controller
             ]);
         }
 
+        if ($lastStatus !== ReportStatus::APPROVED) {
+            throw ValidationException::withMessages([
+                'report_id' => ['Laporan hanya bisa ditugaskan setelah disetujui oleh kecamatan.'],
+            ]);
+        }
+
         $assignment = ReportOpdAssignment::where('report_id', $report->id)
-            ->where('opd_id', Auth::user()->opd->id)
+            ->where('opd_id', Auth::user()->opd_id)
             ->whereNull('ended_at')
             ->first();
 
